@@ -6,7 +6,21 @@ on:
       - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       pages: write
@@ -14,26 +28,7 @@ jobs:
     environment:
       name: github-pages
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js (if required)
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-        if: needs('build') # Only run if the 'build' job succeeds
-
-      - name: Build (if required)
-        id: build
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-        run: |
-          npm install
-          npm run build
-        if: contains(github.event.head_commit.message, 'deploy') # Only build if 'deploy' is in the commit message
-
-      - name: Create config.json with secrets
+      - name: Create config.json
         run: |
           mkdir -p public
           echo '{
@@ -46,11 +41,9 @@ jobs:
             "FIREBASE_MEASUREMENT_ID": "${{ secrets.FIREBASE_MEASUREMENT_ID }}",
             "STRIPE_PUBLISHABLE_KEY": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"
           }' > public/config.json
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           path: public
-
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v1
