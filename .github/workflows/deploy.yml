@@ -1,31 +1,29 @@
 name: Deploy to GitHub Pages
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     permissions:
-      id-token: write # Esto otorga permiso para escribir el id-token
       pages: write
-
+      id-token: write
+    environment:
+      name: github-pages
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Set up Node.js (opcional)
         uses: actions/setup-node@v3
         with:
           node-version: 16
-
       - name: Create config.json with secrets
-        run: |
+        run: >
           mkdir -p public
+
           cat > public/config.json <<EOL
+
           {
             "FIREBASE_API_KEY": "${{ secrets.FIREBASE_API_KEY }}",
             "FIREBASE_AUTH_DOMAIN": "${{ secrets.AUTH_DOMAIN }}",
@@ -36,12 +34,11 @@ jobs:
             "FIREBASE_MEASUREMENT_ID": "${{ secrets.FIREBASE_MEASUREMENT_ID }}",
             "STRIPE_PUBLISHABLE_KEY": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"
           }
-          EOL
 
+          EOL
       - name: Deploy to GitHub Pages
         uses: actions/upload-pages-artifact@v1
         with:
           path: public
-
       - name: Publish to GitHub Pages
         uses: actions/deploy-pages@v1
