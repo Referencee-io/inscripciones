@@ -6,32 +6,30 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
+
     permissions:
       pages: write
       id-token: write
+
     environment:
       name: github-pages
+
     steps:
-      - name: Create config.json
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (opcional)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Create config.json with secrets
         run: |
           mkdir -p public
-          echo '{
+          cat > public/config.json <<EOL
+          {
             "FIREBASE_API_KEY": "${{ secrets.FIREBASE_API_KEY }}",
             "FIREBASE_AUTH_DOMAIN": "${{ secrets.AUTH_DOMAIN }}",
             "FIREBASE_PROJECT_ID": "${{ secrets.FIREBASE_PROJECT_ID }}",
@@ -40,10 +38,11 @@ jobs:
             "FIREBASE_APP_ID": "${{ secrets.FIREBASE_APP_ID }}",
             "FIREBASE_MEASUREMENT_ID": "${{ secrets.FIREBASE_MEASUREMENT_ID }}",
             "STRIPE_PUBLISHABLE_KEY": "${{ secrets.STRIPE_PUBLISHABLE_KEY }}"
-          }' > public/config.json
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: public
+          }
+          EOL
+
       - name: Deploy to GitHub Pages
+        uses: actions/upload-pages-artifact@v1 # Volver a la versión v1
+
+      - name: Publish to GitHub Pages
         uses: actions/deploy-pages@v1
