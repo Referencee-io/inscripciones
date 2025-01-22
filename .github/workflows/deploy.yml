@@ -11,6 +11,7 @@ jobs:
 
     permissions:
       id-token: write # Esto otorga permiso para escribir el id-token
+      pages: write
 
     steps:
       - name: Checkout code
