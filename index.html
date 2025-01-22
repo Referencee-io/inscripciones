@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Formulario de Inscripción</title>
+    <title>Formulario Paginado</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Delius&display=swap"
       rel="stylesheet"
@@ -570,7 +570,7 @@
         </div>
 
         <div class="row g-3 align-items-center">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <label for="parent_relationship">Parentesco</label>
             <select
               name="parent_relationship"
@@ -583,78 +583,16 @@
               <option value="tutor">Tutor</option>
             </select>
           </div>
-          <div class="col-md-6">
-            <label for="parent_blood_type">Tipo de Sangre</label>
-            <select name="parent_blood_type" id="parent_blood_type" required>
-              <option value="seleccione">Seleccione</option>
-              <option value="A+">A+</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B-">B-</option>
-              <option value="AB+">AB+</option>
-              <option value="AB-">AB-</option>
-              <option value="O+">O+</option>
-              <option value="O-">O-</option>
-            </select>
+          <div class="col-md-8">
+            <label for="parent_email">Correo Electrónico</label>
+            <input
+              type="email"
+              name="parent_email"
+              id="parent_email"
+              required
+            />
           </div>
         </div>
-
-        <div class="row g-3 align-items-center">
-          <div class="col-12">
-            <label>Fecha de Nacimiento</label>
-          </div>
-          <div class="col-md-4 mt-0" style="margin-bottom: 0px">
-            <select
-              name="birth_day_parent"
-              id="birth_day_parent"
-              class="form-select"
-              required
-            >
-              <option value="">Día</option>
-            </select>
-          </div>
-          <div class="col-md-4 mt-0">
-            <select
-              name="birth_month_parent"
-              id="birth_month_parent"
-              class="form-select"
-              required
-            >
-              <option value="">Mes</option>
-              <option value="01">Enero</option>
-              <option value="02">Febrero</option>
-              <option value="03">Marzo</option>
-              <option value="04">Abril</option>
-              <option value="05">Mayo</option>
-              <option value="06">Junio</option>
-              <option value="07">Julio</option>
-              <option value="08">Agosto</option>
-              <option value="09">Septiembre</option>
-              <option value="10">Octubre</option>
-              <option value="11">Noviembre</option>
-              <option value="12">Diciembre</option>
-            </select>
-          </div>
-          <div class="col-md-4 mt-0">
-            <select
-              name="birth_year_parent"
-              id="birth_year_parent"
-              class="form-select"
-              required
-            >
-              <option value="">Año</option>
-            </select>
-          </div>
-        </div>
-
-        <label for="parent_curp">CURP</label>
-        <input
-          type="text"
-          name="parent_curp"
-          id="parent_curp"
-          class="uppercase-input"
-          required
-        />
 
         <label for="parent_ine_file">INE</label>
         <input
@@ -663,9 +601,6 @@
           id="parent_ine_file"
           required
         />
-
-        <label for="parent_email">Correo Electrónico</label>
-        <input type="email" name="parent_email" id="parent_email" required />
 
         <div class="row g-3 align-items-center">
           <div class="col-md-6">
@@ -1039,82 +974,82 @@
             });
 
             const receiptContent = `
-    <div class="container py-4">
-      <div class="card shadow-sm mx-auto" style="max-width: 768px;">
-        <div class="card-body p-4">
-          <!-- Logo -->
-          <div class="text-center mb-4">
-            <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+          <div class="container py-4">
+            <div class="card shadow-sm mx-auto" style="max-width: 768px;">
+              <div class="card-body p-4">
+                <!-- Logo -->
+                <div class="text-center mb-4">
+                  <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+                </div>
+            
+                <!-- Encabezado -->
+                <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
+                <hr class="my-4">
+            
+                <!-- Información del pago -->
+                <div class="table-responsive">
+                  <table class="table table-borderless">
+                    <tbody>
+                      <tr>
+                        <td class="text-muted fw-medium" style="width: 40%;">
+                          <strong>ID de Pago:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          ${data.id}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Monto:</strong>
+                        </td>
+                        <td class="text-end">
+                          $2000.00 MXN
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Método de Pago:</strong>
+                        </td>
+                        <td class="text-end">
+                          Tarjeta
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Concepto:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          Inscripción al Ciclo Escolar 2025-2026
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Fecha y Hora:</strong>
+                        </td>
+                        <td class="text-end">
+                          ${moment().format("DD/MM/YYYY, HH:mm:ss")}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Nombre del Pagador:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          ${name} ${primerApellido} ${segundoApellido}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+            
+                <!-- Nota -->
+                <p class="text-center text-muted small mt-4 mb-0">
+                  Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
+                </p>
+              </div>
+            </div>
           </div>
-      
-          <!-- Encabezado -->
-          <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
-          <hr class="my-4">
-      
-          <!-- Información del pago -->
-          <div class="table-responsive">
-            <table class="table table-borderless">
-              <tbody>
-                <tr>
-                  <td class="text-muted fw-medium" style="width: 40%;">
-                    <strong>ID de Pago:</strong>
-                  </td>
-                  <td class="text-end text-break">
-                    ${data.id}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-muted fw-medium">
-                    <strong>Monto:</strong>
-                  </td>
-                  <td class="text-end">
-                    $2000.00 MXN
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-muted fw-medium">
-                    <strong>Método de Pago:</strong>
-                  </td>
-                  <td class="text-end">
-                    Tarjeta
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-muted fw-medium">
-                    <strong>Concepto:</strong>
-                  </td>
-                  <td class="text-end text-break">
-                    Inscripción al Ciclo Escolar 2025-2026
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-muted fw-medium">
-                    <strong>Fecha y Hora:</strong>
-                  </td>
-                  <td class="text-end">
-                    ${moment().format("DD/MM/YYYY, HH:mm:ss")}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="text-muted fw-medium">
-                    <strong>Nombre del Pagador:</strong>
-                  </td>
-                  <td class="text-end text-break">
-                    ${name} ${primerApellido} ${segundoApellido}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-      
-          <!-- Nota -->
-          <p class="text-center text-muted small mt-4 mb-0">
-            Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
-          </p>
-        </div>
-      </div>
-    </div>
-  `;
+        `;
 
             // Insertar el contenido en el modal
             document.getElementById("receiptContent").innerHTML =
@@ -1159,11 +1094,6 @@
 
             // Enviar los datos del formulario a Firebase
             try {
-              const dia = document.getElementById("birth_day_parent").value;
-              const mes = document.getElementById("birth_month_parent").value;
-              const año = document.getElementById("birth_year_parent").value;
-              const fechaNacimiento = `${año}-${mes}-${dia}`;
-              const timestamp = moment(fechaNacimiento, "YYYY-MM-DD").valueOf();
               const calle = document.getElementById("address_street").value;
               const numero = document.getElementById("address_number").value;
               const colonia = document.getElementById("address_colony").value;
@@ -1184,11 +1114,6 @@
                 rol: "Padre de familia",
                 parentesco: document.getElementById("parent_relationship")
                   .value,
-                tipoSangre: document.getElementById("parent_blood_type").value,
-                fechaNacimiento: timestamp
-                  ? firebase.firestore.Timestamp.fromMillis(timestamp)
-                  : null,
-                curp: document.getElementById("parent_curp").value,
                 email: document.getElementById("parent_email").value,
                 telCasa: document.getElementById("parent_phone_home").value,
                 phone: document.getElementById("parent_phone_mobile").value,
@@ -4137,14 +4062,6 @@
           daySelect.appendChild(option);
         }
 
-        const daySelectParent = document.getElementById("birth_day_parent");
-        for (let i = 1; i <= 31; i++) {
-          const option = document.createElement("option");
-          option.value = String(i).padStart(2, "0");
-          option.textContent = String(i).padStart(2, "0");
-          daySelectParent.appendChild(option);
-        }
-
         // Generar años
         const yearSelect = document.getElementById("birth_year");
         const currentYear = new Date().getFullYear();
@@ -4153,14 +4070,6 @@
           option.value = year;
           option.textContent = year;
           yearSelect.appendChild(option);
-        }
-
-        const yearSelectParent = document.getElementById("birth_year_parent");
-        for (let year = currentYear; year >= currentYear - 83; year--) {
-          const option = document.createElement("option");
-          option.value = year;
-          option.textContent = year;
-          yearSelectParent.appendChild(option);
         }
 
         // Obtener elementos del DOM
