@@ -9,6 +9,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    permissions:
+      id-token: write # Esto otorga permiso para escribir el id-token
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
