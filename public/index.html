@@ -594,7 +594,12 @@
     <script>
       // Cargar el archivo config.json
       fetch("./config.json")
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("No se pudo cargar el archivo config.json");
+          }
+          return response.json();
+        })
         .then((config) => {
           // Usar las variables del archivo config.json en Firebase
           const firebaseConfig = {
@@ -608,13 +613,17 @@
           };
 
           // Inicializar Firebase con la configuración
-          firebase.initializeApp(firebaseConfig);
+          if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+          }
 
-          // Inicializar las variables necesarias para Firebase
-          const auth = firebase.auth();
-          const db = firebase.firestore();
-          const storage = firebase.storage();
-          const storageRef = storage.ref();
+          // Definir variables globales para Firebase
+          window.auth = firebase.auth();
+          window.db = firebase.firestore();
+          window.storage = firebase.storage();
+          window.storageRef = window.storage.ref();
+
+          console.log("Firebase configurado correctamente.");
         })
         .catch((error) => {
           console.error("Error al cargar config.json:", error);
