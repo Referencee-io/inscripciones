@@ -20,7 +20,7 @@ jobs:
 
       - name: Create config.json with secrets
         run: |
-          echo '{ "API_KEY": "${{ secrets.FIREBASE_API_KEY }}" }' > public/config.json
+          echo '{ "FIREBASE_API_KEY": "${{ secrets.FIREBASE_API_KEY }}" }' > public/config.json
 
       - name: Deploy to GitHub Pages
         uses: actions/upload-pages-artifact@v1
