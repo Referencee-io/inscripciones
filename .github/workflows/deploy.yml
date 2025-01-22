@@ -14,7 +14,7 @@ jobs:
       id-token: write
 
     environment:
-      name: github-pages
+      name: github-pages # Agrega el entorno para el despliegue
 
     steps:
       - name: Checkout code
@@ -42,7 +42,9 @@ jobs:
           EOL
 
       - name: Deploy to GitHub Pages
-        uses: actions/upload-pages-artifact@v1 # Volver a la versión v1
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: public
 
       - name: Publish to GitHub Pages
         uses: actions/deploy-pages@v1

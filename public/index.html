@@ -592,27 +592,35 @@
     <script src="https://www.gstatic.com/firebasejs/8.4.2//firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-storage.js"></script>
     <script>
-      // Your web app's Firebase configuration
-      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-      const firebaseConfig = {
-        apiKey: "AIzaSyBo-e2fal1DPD6zwEx_yRsg7rVj6UIZ7AI",
-        authDomain: "escuelas-235df.firebaseapp.com",
-        projectId: "escuelas-235df",
-        storageBucket: "escuelas-235df.appspot.com",
-        messagingSenderId: "559386225352",
-        appId: "1:559386225352:web:106c95bc92748f80a313fd",
-        measurementId: "G-T010J2CDKV",
-      };
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      //Variable para autenticación
-      const auth = firebase.auth();
-      //Variable de conexión para Cloud Firestore
-      const db = firebase.firestore();
-      //Variables para acceder a la storage
-      const storage = firebase.storage();
-      const storageRef = storage.ref();
+      // Cargar el archivo config.json
+      fetch("./config.json")
+        .then((response) => response.json())
+        .then((config) => {
+          // Usar las variables del archivo config.json en Firebase
+          const firebaseConfig = {
+            apiKey: config.FIREBASE_API_KEY,
+            authDomain: config.FIREBASE_AUTH_DOMAIN,
+            projectId: config.FIREBASE_PROJECT_ID,
+            storageBucket: config.FIREBASE_STORAGE_BUCKET,
+            messagingSenderId: config.FIREBASE_MESSAGING_SENDER_ID,
+            appId: config.FIREBASE_APP_ID,
+            measurementId: config.FIREBASE_MEASUREMENT_ID,
+          };
+
+          // Inicializar Firebase con la configuración
+          firebase.initializeApp(firebaseConfig);
+
+          // Inicializar las variables necesarias para Firebase
+          const auth = firebase.auth();
+          const db = firebase.firestore();
+          const storage = firebase.storage();
+          const storageRef = storage.ref();
+        })
+        .catch((error) => {
+          console.error("Error al cargar config.json:", error);
+        });
     </script>
+
     <script src="https://js.stripe.com/v3/"></script>
 
     <script src="./script.js"></script>
