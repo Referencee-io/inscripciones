@@ -1,1 +1,1 @@
-{ "FIREBASE_API_KEY": "AIzaSyBo-e2fal1DPD6zwEx_yRsg7rVj6UIZ7AI" }
+{ "FIREBASE_API_KEY": "${{ secrets.FIREBASE_API_KEY }}" }
