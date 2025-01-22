@@ -19,285 +19,7 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
-
-    <style>
-      body {
-        font-family: "Delius", cursive;
-        margin: 0;
-        padding: 0;
-        background: #f9f9f9;
-        font-size: 16px;
-      }
-
-      #form-container {
-        max-width: 600px;
-        margin: 10px auto;
-        background: white;
-        border-radius: 8px;
-        padding: 20px;
-        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-      }
-
-      .progress-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        flex-direction: row;
-      }
-
-      .step {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: #f0f0f0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        color: #999;
-        font-weight: bold;
-      }
-
-      .step.active {
-        background: #007bff;
-        color: white;
-      }
-
-      .line {
-        flex: 1;
-        height: 2px;
-        background: #f0f0f0;
-        margin: 0 5px;
-      }
-
-      .line.active {
-        background: #007bff;
-      }
-
-      .form-page {
-        display: none;
-      }
-
-      .form-page.active {
-        display: block;
-      }
-
-      .button-container {
-        display: flex;
-        justify-content: space-between; /* Espaciado entre los botones */
-        margin-top: 20px;
-      }
-
-      button {
-        background: #007bff;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-      }
-
-      button:hover {
-        background: #0056b3;
-      }
-
-      button:disabled {
-        background: #cccccc;
-        cursor: not-allowed;
-      }
-
-      /* Estilos de los botones prev y siguiente */
-      button.prev {
-        background: #f44336;
-      }
-
-      button.prev:hover {
-        background: #e53935;
-      }
-
-      /* Estilos para campos deshabilitados */
-      input[disabled],
-      select[disabled] {
-        background-color: #f0f0f0;
-      }
-
-      /* Estilo para los mensajes dentro del formulario */
-      p {
-        font-size: 16px;
-        color: #555;
-      }
-
-      /* Estilos de los campos del formulario */
-      label {
-        font-size: 16px;
-        margin-bottom: 5px;
-        display: block;
-      }
-
-      input,
-      select {
-        width: 100%;
-        height: 32px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-      }
-
-      textarea {
-        width: 100%;
-        height: 50px;
-        margin-bottom: 10px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-        resize: vertical;
-      }
-
-      #stripe-container {
-        margin: 20px auto;
-        padding: 15px;
-        border: 2px solid #4caf50; /* Borde con color llamativo */
-        border-radius: 10px; /* Esquinas redondeadas */
-        background-color: #f9f9f9; /* Fondo suave */
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-        max-width: 400px; /* Ancho máximo */
-        text-align: center; /* Centrado del contenido */
-      }
-
-      #card-element {
-        margin: 10px 0;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #fff;
-        font-size: 16px;
-        color: #32325d;
-      }
-
-      .uppercase-input {
-        text-transform: uppercase;
-      }
-
-      .modal {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #00bcd4 !important;
-      }
-
-      .modal h5 {
-        color: black;
-        font-weight: bold;
-      }
-
-      .modal-dialog {
-        display: flex;
-        align-items: center;
-        min-height: calc(100% - 1rem);
-      }
-
-      .success-icon {
-        font-size: 60px;
-        color: white;
-      }
-
-      #iconContainer {
-        width: 100px;
-        height: 100px;
-        background: #198754;
-        border-radius: 50px;
-        margin: auto;
-      }
-
-      .modal-backdrop + .modal-backdrop {
-        z-index: 1051;
-      }
-      .modal:nth-of-type(2) {
-        z-index: 1052;
-      }
-      .fade {
-        animation: fadeIn 0.3s ease-in;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 100%;
-      }
-
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-      }
-
-      .close:hover,
-      .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-      }
-
-      /* Responsive Styles */
-      @media (max-width: 768px) {
-        #form-container {
-          padding: 15px;
-        }
-
-        button {
-          width: 100%;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .form-container {
-          padding: 10px;
-        }
-
-        .form-page {
-          padding: 15px;
-        }
-
-        .form-page h2 {
-          font-size: 20px;
-        }
-
-        label {
-          font-size: 16px;
-        }
-
-        input,
-        select,
-        button {
-          font-size: 16px;
-        }
-
-        .progress-indicator {
-          flex-direction: column;
-          align-items: center;
-        }
-
-        .step {
-          font-size: 16px;
-        }
-
-        .line {
-          width: 50%;
-        }
-      }
-    </style>
+    <link href="./styles.css" rel="stylesheet" />
   </head>
   <body>
     <div id="form-container">
@@ -859,6 +581,7 @@
     <!-- MOMENT JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
     <!-- FIREBASE SCRIPTS -->
+    <script src="./app.js"></script>
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
 
@@ -872,13 +595,13 @@
       // Your web app's Firebase configuration
       // For Firebase JS SDK v7.20.0 and later, measurementId is optional
       const firebaseConfig = {
-        apiKey: ${{ secrets.FIREBASE_API_KEY }},
-        authDomain: ${{ secrets.FIREBASE_AUTH_DOMAIN }},
-        projectId: ${{ secrets.FIREBASE_PROJECT_ID }},
-        storageBucket: ${{ secrets.FIREBASE_STORAGE_BUCKET }},
-        messagingSenderId: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }},
-        appId: ${{ secrets.FIREBASE_APP_ID }},
-        measurementId: ${{ secrets.FIREBASE_MEASUREMENT_ID }},
+        apiKey: "AIzaSyBo-e2fal1DPD6zwEx_yRsg7rVj6UIZ7AI",
+        authDomain: "escuelas-235df.firebaseapp.com",
+        projectId: "escuelas-235df",
+        storageBucket: "escuelas-235df.appspot.com",
+        messagingSenderId: "559386225352",
+        appId: "1:559386225352:web:106c95bc92748f80a313fd",
+        measurementId: "G-T010J2CDKV",
       };
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
@@ -891,9 +614,12 @@
       const storageRef = storage.ref();
     </script>
     <script src="https://js.stripe.com/v3/"></script>
+
     <script>
       // Configurar Stripe
-      const stripe = Stripe(${{ secrets.STRIPE_PUBLISHABLE_KEY }});
+      const stripe = Stripe(
+        "pk_test_51QDTfLCmoXV3KlChnL2Z1xeizbfoTMhiDkHhiwxxcAdpBAvVCO9d1n7Xa5e6fzGIaeEWVlH48IBgqmWhag0E52I400eS1fv70g"
+      );
 
       // Ocultar el código postal en el elemento de tarjeta
       const elements = stripe.elements();

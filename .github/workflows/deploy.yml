@@ -1,0 +1,29 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js (opcional)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Create config.json with secrets
+        run: |
+          echo '{ "API_KEY": "${{ secrets.FIREBASE_API_KEY }}" }' > public/config.json
+
+      - name: Deploy to GitHub Pages
+        uses: actions/upload-pages-artifact@v1
+
+      - name: Publish to GitHub Pages
+        uses: actions/deploy-pages@v1
