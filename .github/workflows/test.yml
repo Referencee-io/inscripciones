@@ -1,0 +1,22 @@
+name: Config
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and Deploy
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        run: |
+          echo "window.FIREBASE_CONFIG = JSON.parse('${FIREBASE_CONFIG}');" > public/config.js
+          echo "window.STRIPE_PUBLISHABLE_KEY = '${STRIPE_PUBLISHABLE_KEY}';" >> public/config.js
