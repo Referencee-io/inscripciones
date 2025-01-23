@@ -593,33 +593,21 @@
     <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-storage.js"></script>
     <script>
       // Cargar el archivo config.json
-      fetch("./config.json")
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("No se pudo cargar el archivo config.json");
-          }
-          return response.json();
-        })
-        .then((config) => {
-          // Usar las variables del archivo config.json en Firebase
-          const firebaseConfig = window.FIREBASE_CONFI;
+      // Usar las variables del archivo config.json en Firebase
+      const firebaseConfig = window.FIREBASE_CONFI;
 
-          // Inicializar Firebase con la configuración
-          if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-          }
+      // Inicializar Firebase con la configuración
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
 
-          // Definir variables globales para Firebase
-          window.auth = firebase.auth();
-          window.db = firebase.firestore();
-          window.storage = firebase.storage();
-          window.storageRef = window.storage.ref();
+      // Definir variables globales para Firebase
+      window.auth = firebase.auth();
+      window.db = firebase.firestore();
+      window.storage = firebase.storage();
+      window.storageRef = window.storage.ref();
 
-          console.log("Firebase configurado correctamente.");
-        })
-        .catch((error) => {
-          console.error("Error al cargar config.json:", error);
-        });
+      console.log("Firebase configurado correctamente.");
     </script>
 
     <script src="https://js.stripe.com/v3/"></script>
