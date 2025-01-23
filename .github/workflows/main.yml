@@ -1,0 +1,22 @@
+name: Deploy Application
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build and Deploy
+        env:
+          FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
+          STRIPE_PUBLIC_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        run: |
+          echo "window.FIREBASE_CONFIG = encodeURIComponent('${FIREBASE_CONFIG}');" > public/config.js
+          echo "window.STRIPE_PUBLIC_KEY = '${STRIPE_PUBLIC_KEY}';" >> public/config.js
