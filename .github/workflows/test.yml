@@ -1,4 +1,4 @@
-name: Config
+name: Deploy Application
 
 on:
   push:
@@ -13,10 +13,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Build and Deploy
+      - name: Generar archivo config.js
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
         run: |
+          if [ -z "${FIREBASE_CONFIG}" ] || [ -z "${STRIPE_PUBLISHABLE_KEY}" ]; then
+            echo "Error: Uno o más secretos están vacíos." >&2
+            exit 1
+          fi
+
           echo "window.FIREBASE_CONFIG = JSON.parse('${FIREBASE_CONFIG}');" > public/config.js
-          echo "window.STRIPE_PUBLISHABLE_KEY = '${STRIPE_PUBLISHABLE_KEY}';" >> public/config.js
+          echo "window.STRIPE_PUBLIC_KEY = '${STRIPE_PUBLISHABLE_KEY}';" >> public/config.js
+
+      - name: Validar contenido del archivo config.js
+        run: |
+          cat public/config.js
+
+      - name: Build and Deploy
+        run: |
+          npm run build
+          cp public/config.js build/
+          firebase deploy
+
