@@ -1,4 +1,4 @@
-name: Deploy Application
+name: Deploy to Firebase Hosting
 
 on:
   push:
@@ -6,33 +6,29 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Generar archivo config.js
+      - name: Instalar Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Configurar archivo config.js
         env:
           FIREBASE_CONFIG: ${{ secrets.FIREBASE_CONFIG }}
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
         run: |
-          if [ -z "${FIREBASE_CONFIG}" ] || [ -z "${STRIPE_PUBLISHABLE_KEY}" ]; then
-            echo "Error: Uno o más secretos están vacíos." >&2
-            exit 1
-          fi
-
           echo "window.FIREBASE_CONFIG = JSON.parse('${FIREBASE_CONFIG}');" > public/config.js
           echo "window.STRIPE_PUBLIC_KEY = '${STRIPE_PUBLISHABLE_KEY}';" >> public/config.js
 
-      - name: Validar contenido del archivo config.js
-        run: |
-          cat public/config.js
+      - name: Verificar contenido del directorio público
+        run: ls -R public/
 
-      - name: Build and Deploy
-        run: |
-          npm run build
-          cp public/config.js build/
-          firebase deploy
+      - name: Autenticar con Firebase
+        run: firebase auth:login:ci --token "${{ secrets.FIREBASE_AUTH_TOKEN }}"
 
+      - name: Deploy a Firebase Hosting
+        run: firebase deploy --only hosting
