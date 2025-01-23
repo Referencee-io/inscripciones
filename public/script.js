@@ -1,7 +1,5 @@
 // Configurar Stripe
-const stripe = Stripe(
-  "pk_test_51QDTfLCmoXV3KlChnL2Z1xeizbfoTMhiDkHhiwxxcAdpBAvVCO9d1n7Xa5e6fzGIaeEWVlH48IBgqmWhag0E52I400eS1fv70g"
-);
+const stripe = Stripe(window.STRIPE_PUBLISHABLE_KEY);
 
 // Ocultar el código postal en el elemento de tarjeta
 const elements = stripe.elements();
