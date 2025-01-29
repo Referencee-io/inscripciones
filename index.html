@@ -1499,7 +1499,7 @@
             currentPage--;
             showPage(currentPage);
             // Desplazar al inicio de la página
-            const container = document.querySelector(".form-container");
+            const container = document.querySelector("#form-container");
             container.scrollTo({ top: 0, behavior: "smooth" });
           }
         });
@@ -4094,10 +4094,10 @@
 
         // Configuración de grados por nivel escolar
         const gradosPorNivel = {
-          preescolar: [1, 2, 3],
-          primaria: [1, 2, 3, 4, 5, 6],
-          secundaria: [1, 2, 3],
-          preparatoria: [1, 2, 3],
+          Preescolar: ["1ro.", "2do.", "3ro."],
+          Primaria: ["1ro.", "2do.", "3ro.", "4to.", "5to.", "6to."],
+          Secundaria: ["7o.", "8o.", "9o."],
+          Preparatoria: ["1ro.", "2do.", "3ro."],
         };
 
         // Obtener referencias a los elementos
