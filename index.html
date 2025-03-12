@@ -19,6 +19,7 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
     <style>
       body {
         font-family: "Delius", cursive;
@@ -471,10 +472,10 @@
             <label for="academic_level">Nivel Escolar</label>
             <select name="academic_level" id="academic_level" required>
               <option value="seleccione">Seleccione</option>
-              <option value="preescolar">Preescolar</option>
-              <option value="primaria">Primaria</option>
-              <option value="secundaria">Secundaria</option>
-              <option value="preparatoria">Preparatoria</option>
+              <option value="Preescolar">Preescolar</option>
+              <option value="Primaria">Primaria</option>
+              <option value="Secundaria">Secundaria</option>
+              <option value="Preparatoria">Preparatoria</option>
             </select>
           </div>
 
@@ -754,12 +755,12 @@
               required
             >
               <option value="">Seleccione</option>
-              <option value="padre">Padre</option>
-              <option value="madre">Madre</option>
-              <option value="hermano">Hermano</option>
-              <option value="tío">Tío</option>
-              <option value="tutor">Tutor</option>
-              <option value="amigo">Amigo</option>
+              <option value="Padre">Padre</option>
+              <option value="Madre">Madre</option>
+              <option value="Hermano">Hermano</option>
+              <option value="Tío">Tío</option>
+              <option value="Tutor">Tutor</option>
+              <option value="Amigo">Amigo</option>
             </select>
           </div>
         </div>
@@ -890,7 +891,6 @@
       const storageRef = storage.ref();
     </script>
     <script src="https://js.stripe.com/v3/"></script>
-
     <script>
       // Configurar Stripe
       const stripe = Stripe(
@@ -981,11 +981,11 @@
                 <div class="text-center mb-4">
                   <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
                 </div>
-            
+
                 <!-- Encabezado -->
                 <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
                 <hr class="my-4">
-            
+
                 <!-- Información del pago -->
                 <div class="table-responsive">
                   <table class="table table-borderless">
@@ -1041,7 +1041,7 @@
                     </tbody>
                   </table>
                 </div>
-            
+
                 <!-- Nota -->
                 <p class="text-center text-muted small mt-4 mb-0">
                   Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
@@ -1485,7 +1485,7 @@
             if (currentPage < pages.length) {
               showPage(currentPage);
               // Desplazar al inicio de la página
-              const container = document.querySelector(".form-container");
+              const container = document.querySelector("#form-container");
               container.scrollTo({ top: 0, behavior: "smooth" });
             }
           }
@@ -1499,7 +1499,7 @@
             currentPage--;
             showPage(currentPage);
             // Desplazar al inicio de la página
-            const container = document.querySelector("#form-container");
+            const container = document.querySelector(".form-container");
             container.scrollTo({ top: 0, behavior: "smooth" });
           }
         });
