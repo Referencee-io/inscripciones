@@ -468,8 +468,8 @@
       <div class="form-page">
         <h2>Datos Académicos</h2>
         <div class="row g-3 align-items-center">
-          <div class="col-md-4">
-            <label for="academic_level">Nivel Escolar</label>
+          <div class="col-md-6">
+            <label for="academic_level">Nivel Escolar actual</label>
             <select name="academic_level" id="academic_level" required>
               <option value="seleccione">Seleccione</option>
               <option value="Preescolar">Preescolar</option>
@@ -479,9 +479,29 @@
             </select>
           </div>
 
-          <div class="col-md-4">
-            <label for="academic_grade">Grado</label>
+          <div class="col-md-6">
+            <label for="academic_grade">Grado actual</label>
             <select name="academic_grade" id="academic_grade" required>
+              <option value="seleccione">Seleccione</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row g-3 align-items-center">
+          <div class="col-md-4">
+            <label for="academic_newLevel">Nivel Escolar por cursar</label>
+            <select name="academic_newLevel" id="academic_newLevel" required>
+              <option value="seleccione">Seleccione</option>
+              <option value="Preescolar">Preescolar</option>
+              <option value="Primaria">Primaria</option>
+              <option value="Secundaria">Secundaria</option>
+              <option value="Preparatoria">Preparatoria</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label for="academic_newGrade">Grado por cursar</label>
+            <select name="academic_newGrade" id="academic_newGrade" required>
               <option value="seleccione">Seleccione</option>
             </select>
           </div>
@@ -1391,8 +1411,11 @@
             religion: document.getElementById("student_religion").value,
             observaciones: document.getElementById("student_observations")
               .value,
-            nivelEscolar: document.getElementById("academic_level").value,
-            grado: document.getElementById("academic_grade").value,
+            nivelEscolarActual: document.getElementById("academic_level").value,
+            gradoActual: document.getElementById("academic_grade").value,
+            nivelEscolarProximo:
+              document.getElementById("academic_newLevel").value,
+            gradoProximo: document.getElementById("academic_newGrade").value,
             cicloEscolar: document.getElementById("ciclo").value,
             escuelaProveniente: document.getElementById(
               "academic_previous_school"
@@ -4139,6 +4162,46 @@
 
         // Inicializar el estado del select de grados
         gradoSelect.disabled = true;
+
+        // Obtener referencias a los elementos del nuevo grado a cursar
+        const nivelNewSelect = document.getElementById("academic_newLevel");
+        const gradoNewSelect = document.getElementById("academic_newGrade");
+
+        // Función para actualizar los grados
+        function actualizarGradosNuevos() {
+          // Obtener el nivel seleccionado
+          const nivelSeleccionado = nivelNewSelect.value;
+
+          // Limpiar el select de grados
+          gradoNewSelect.innerHTML =
+            '<option value="seleccione">Seleccione</option>';
+
+          // Si se seleccionó un nivel válido
+          if (
+            nivelSeleccionado !== "seleccione" &&
+            gradosPorNivel[nivelSeleccionado]
+          ) {
+            // Agregar las opciones correspondientes al nivel
+            gradosPorNivel[nivelSeleccionado].forEach((grado) => {
+              const option = document.createElement("option");
+              option.value = grado;
+              option.textContent = grado;
+              gradoNewSelect.appendChild(option);
+            });
+
+            // Habilitar el select de grados Nuevos
+            gradoNewSelect.disabled = false;
+          } else {
+            // Deshabilitar el select de grados si no hay nivel seleccionado
+            gradoNewSelect.disabled = true;
+          }
+        }
+
+        // Agregar el evento change al select de nivel Nuevo
+        nivelNewSelect.addEventListener("change", actualizarGradosNuevos);
+
+        // Inicializar el estado del select de grados Nuevos
+        gradoNewSelect.disabled = true;
 
         // Obtener el elemento del correo
         const emailInput = document.getElementById("parent_email");
