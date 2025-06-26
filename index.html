@@ -821,6 +821,7 @@
               }),
             }
           );
+          console.log(res)
 
           if (!res.ok) {
             let errorMsg = "Error en el servidor";
@@ -832,21 +833,24 @@
           }
 
           const data = await res.json();
-          console.log("Pago realizado con éxito. Guardando datos...");
 
-          // Crear el HTML del recibo
-          // 1. Obtener la imagen y convertirla a base64
-          const imageResponse = await fetch(
-            "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2Fjfr_logo.webp?alt=media&token=69dd35e3-4d3f-4515-84ae-44e994ae2bed"
-          );
-          const blob = await imageResponse.blob();
-          const base64Image = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result.split(",")[1]);
-            reader.readAsDataURL(blob);
-          });
+          if (data.status == "success") {
+            console.log(data)
+            console.log("Pago realizado con éxito. Guardando datos...");
 
-          const receiptContent = `
+            // Crear el HTML del recibo
+            // 1. Obtener la imagen y convertirla a base64
+            const imageResponse = await fetch(
+              "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2Fjfr_logo.webp?alt=media&token=69dd35e3-4d3f-4515-84ae-44e994ae2bed"
+            );
+            const blob = await imageResponse.blob();
+            const base64Image = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result.split(",")[1]);
+              reader.readAsDataURL(blob);
+            });
+
+            const receiptContent = `
           <div class="container py-4">
             <div class="card shadow-sm mx-auto" style="max-width: 768px;">
               <div class="card-body p-4">
@@ -924,269 +928,280 @@
           </div>
         `;
 
-          // Insertar el contenido en el modal
-          document.getElementById("receiptContent").innerHTML =
-            receiptContent;
+            // Insertar el contenido en el modal
+            document.getElementById("receiptContent").innerHTML =
+              receiptContent;
 
-          // Manejar la descarga del PDF
-          document
-            .getElementById("downloadReceipt")
-            .addEventListener("click", async () => {
-              const element = document.getElementById("receiptContent");
+            // Manejar la descarga del PDF
+            document
+              .getElementById("downloadReceipt")
+              .addEventListener("click", async () => {
+                const element = document.getElementById("receiptContent");
 
-              // Forzar carga de imágenes antes de generar el PDF
-              const images = element.querySelectorAll("img");
-              await Promise.all(
-                Array.from(images).map((img) => {
-                  return new Promise((resolve, reject) => {
-                    if (img.complete) {
-                      resolve();
-                    } else {
-                      img.onload = resolve;
-                      img.onerror = reject;
-                    }
-                  });
-                })
-              );
-
-              // Generar el PDF con html2pdf.js
-              html2pdf()
-                .from(element)
-                .set({
-                  margin: 1,
-                  filename: "recibo.pdf",
-                  html2canvas: { scale: 2 }, // Aumenta la calidad del renderizado
-                  jsPDF: {
-                    unit: "in",
-                    format: "letter",
-                    orientation: "portrait",
-                  },
-                })
-                .save();
-            });
-
-          // Enviar los datos del formulario a Firebase
-          try {
-            const calle = document.getElementById("address_street").value;
-            const numero = document.getElementById("address_number").value;
-            const colonia = document.getElementById("address_colony").value;
-            const cp = document.getElementById("address_zipcode").value;
-            const estado = document.getElementById("address_state").value;
-            const ciudad = document.getElementById("address_city").value;
-            const inePadre =
-              document.getElementById("parent_ine_file").files[0];
-
-            const dataPadre = {
-              name: name,
-              primerApellido: primerApellido,
-              segundoApellido: segundoApellido,
-              rol: "Padre de familia",
-              parentesco: document.getElementById("parent_relationship")
-                .value,
-              email: mail,
-              telCasa: document.getElementById("parent_phone_home").value,
-              phone: document.getElementById("parent_phone_mobile").value,
-              direccion: `${calle} ${numero}, ${colonia}. ${cp}. ${estado}, ${ciudad}`,
-              ocupacion: document.getElementById("parent_occupation").value,
-              estadoCivil: document.getElementById("parent_marital_status")
-                .value,
-              estudiantes: [],
-              contacto: {
-                name: document.getElementById("emergency_firstname").value,
-                primerApellido: document.getElementById(
-                  "emergency_lastname_father"
-                ).value,
-                segundoApellido: document.getElementById(
-                  "emergency_lastname_mother"
-                ).value,
-                parentesco: document.getElementById("emergency_relationship")
-                  .value,
-                phone: document.getElementById("emergency_phone").value,
-              },
-              createAt: firebase.firestore.Timestamp.now(),
-            };
-
-            // Enviar los datos a Firebase
-            db.collection("inscripciones")
-              .add(dataPadre)
-              .then((docRef) => {
-                const idDoc = docRef.id;
-                const nameCompleto = `${name} ${primerApellido} ${segundoApellido}`;
-
-                const fileUploads = [
-                  { file: inePadre, type: "ine", field: "ine" },
-                ].map((upload) =>
-                  upload.file
-                    ? uploadCurpFile(
-                      upload.file,
-                      nameCompleto + "_" + idDoc,
-                      upload.type
-                    ).then((downloadURL) => {
-                      return db
-                        .collection("inscripciones")
-                        .doc(idDoc)
-                        .update({ [upload.field]: downloadURL });
-                    })
-                    : Promise.resolve()
+                // Forzar carga de imágenes antes de generar el PDF
+                const images = element.querySelectorAll("img");
+                await Promise.all(
+                  Array.from(images).map((img) => {
+                    return new Promise((resolve, reject) => {
+                      if (img.complete) {
+                        resolve();
+                      } else {
+                        img.onload = resolve;
+                        img.onerror = reject;
+                      }
+                    });
+                  })
                 );
 
-                return uploadAlumno(idDoc, data.id)
-                  .then((idEstudiante) => {
-                    const nameAlumno = document.getElementById("student_firstname").value;
-                    const primerApellidoAlumno = document.getElementById(
-                      "student_lastname_father"
-                    ).value;
-                    const segundoApellidoAlumno = document.getElementById(
-                      "student_lastname_mother"
-                    ).value;
-                    const nameFolder = `${nameAlumno} ${primerApellidoAlumno} ${segundoApellidoAlumno}_${idEstudiante}`;
-                    const curpFileEstudiante =
-                      document.getElementById("academic_curp_file").files[0];
-                    const actaNacimientoEstudiante = document.getElementById(
-                      "academic_birth_certificate"
-                    ).files[0];
-                    const boletaEstudiante = document.getElementById(
-                      "academic_report_card"
-                    ).files[0];
-
-                    const studentFileUploads = [
-                      {
-                        file: curpFileEstudiante,
-                        type: "curp",
-                        field: "curpFile",
-                      },
-                      {
-                        file: actaNacimientoEstudiante,
-                        type: "acta_nacimiento",
-                        field: "actaNacimiento",
-                      },
-                      {
-                        file: boletaEstudiante,
-                        type: "boleta",
-                        field: "boleta",
-                      },
-                    ].map((upload) =>
-                      upload.file
-                        ? uploadCurpFile(
-                          upload.file,
-                          nameFolder,
-                          upload.type
-                        ).then((downloadURL) => {
-                          return db
-                            .collection("inscripciones")
-                            .doc(idEstudiante)
-                            .update({ [upload.field]: downloadURL });
-                        })
-                        : Promise.resolve()
-                    );
-
-                    return Promise.all([
-                      ...fileUploads,
-                      ...studentFileUploads,
-                      db
-                        .collection("inscripciones")
-                        .doc(idDoc)
-                        .update({
-                          estudiantes: [{ idEstudiante, perfil: false }],
-                        }),
-                    ]);
+                // Generar el PDF con html2pdf.js
+                html2pdf()
+                  .from(element)
+                  .set({
+                    margin: 1,
+                    filename: "recibo.pdf",
+                    html2canvas: { scale: 2 }, // Aumenta la calidad del renderizado
+                    jsPDF: {
+                      unit: "in",
+                      format: "letter",
+                      orientation: "portrait",
+                    },
                   })
-                  .then(() => {
-                    // Todo en una línea:
-                    const id = new URLSearchParams(
-                      window.location.search
-                    ).get("id");
-                    if (id) {
-                      var docRef = db.collection("usuarios").doc(id);
+                  .save();
+              });
 
-                      docRef
-                        .get()
-                        .then((doc) => {
-                          if (doc.exists) {
-                            var recompensa = doc.data().recompensa
-                              ? doc.data().recompensa
-                              : 0;
-                            var totalRecompensa = recompensa + 5000;
-                            docRef
-                              .update({
-                                recompensa: totalRecompensa,
-                              })
-                              .then(() => {
-                                console.log("Document successfully updated!");
-                                const arrToken = doc.data().tokenDevice
-                                  ? doc.data().tokenDevice
-                                  : [];
-                                arrToken.forEach((token) => {
-                                  fetch(
-                                    "https://exp.host/--/api/v2/push/send",
-                                    {
-                                      method: "POST",
-                                      headers: {
-                                        Accept: "application/json",
-                                        "Accept-encoding": "gzip, deflate",
-                                        "Content-Type": "application/json",
-                                      },
-                                      mode: "no-cors",
-                                      body: JSON.stringify({
-                                        to: token,
-                                        title: "¡En hora buena! 🍀",
-                                        body: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                          } se ha inscrito y has ganado $5,000 de recompensa.`,
-                                        data: {
-                                          mensaje: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
-                                          url: `https://refereence.page/notification?mensaje=!¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
-                                          idUser: doc.data().userId,
-                                          notificacion: "Wallet",
+            // Enviar los datos del formulario a Firebase
+            try {
+              const calle = document.getElementById("address_street").value;
+              const numero = document.getElementById("address_number").value;
+              const colonia = document.getElementById("address_colony").value;
+              const cp = document.getElementById("address_zipcode").value;
+              const estado = document.getElementById("address_state").value;
+              const ciudad = document.getElementById("address_city").value;
+              const inePadre =
+                document.getElementById("parent_ine_file").files[0];
+
+              const dataPadre = {
+                name: name,
+                primerApellido: primerApellido,
+                segundoApellido: segundoApellido,
+                rol: "Padre de familia",
+                parentesco: document.getElementById("parent_relationship")
+                  .value,
+                email: mail,
+                telCasa: document.getElementById("parent_phone_home").value,
+                phone: document.getElementById("parent_phone_mobile").value,
+                direccion: `${calle} ${numero}, ${colonia}. ${cp}. ${estado}, ${ciudad}`,
+                ocupacion: document.getElementById("parent_occupation").value,
+                estadoCivil: document.getElementById("parent_marital_status")
+                  .value,
+                estudiantes: [],
+                contacto: {
+                  name: document.getElementById("emergency_firstname").value,
+                  primerApellido: document.getElementById(
+                    "emergency_lastname_father"
+                  ).value,
+                  segundoApellido: document.getElementById(
+                    "emergency_lastname_mother"
+                  ).value,
+                  parentesco: document.getElementById("emergency_relationship")
+                    .value,
+                  phone: document.getElementById("emergency_phone").value,
+                },
+                createAt: firebase.firestore.Timestamp.now(),
+              };
+
+              // Enviar los datos a Firebase
+              db.collection("inscripciones")
+                .add(dataPadre)
+                .then((docRef) => {
+                  const idDoc = docRef.id;
+                  const nameCompleto = `${name} ${primerApellido} ${segundoApellido}`;
+
+                  const fileUploads = [
+                    { file: inePadre, type: "ine", field: "ine" },
+                  ].map((upload) =>
+                    upload.file
+                      ? uploadCurpFile(
+                        upload.file,
+                        nameCompleto + "_" + idDoc,
+                        upload.type
+                      ).then((downloadURL) => {
+                        return db
+                          .collection("inscripciones")
+                          .doc(idDoc)
+                          .update({ [upload.field]: downloadURL });
+                      })
+                      : Promise.resolve()
+                  );
+
+                  return uploadAlumno(idDoc, data.id)
+                    .then((idEstudiante) => {
+                      const nameAlumno = document.getElementById("student_firstname").value;
+                      const primerApellidoAlumno = document.getElementById(
+                        "student_lastname_father"
+                      ).value;
+                      const segundoApellidoAlumno = document.getElementById(
+                        "student_lastname_mother"
+                      ).value;
+                      const nameFolder = `${nameAlumno} ${primerApellidoAlumno} ${segundoApellidoAlumno}_${idEstudiante}`;
+                      const curpFileEstudiante =
+                        document.getElementById("academic_curp_file").files[0];
+                      const actaNacimientoEstudiante = document.getElementById(
+                        "academic_birth_certificate"
+                      ).files[0];
+                      const boletaEstudiante = document.getElementById(
+                        "academic_report_card"
+                      ).files[0];
+
+                      const studentFileUploads = [
+                        {
+                          file: curpFileEstudiante,
+                          type: "curp",
+                          field: "curpFile",
+                        },
+                        {
+                          file: actaNacimientoEstudiante,
+                          type: "acta_nacimiento",
+                          field: "actaNacimiento",
+                        },
+                        {
+                          file: boletaEstudiante,
+                          type: "boleta",
+                          field: "boleta",
+                        },
+                      ].map((upload) =>
+                        upload.file
+                          ? uploadCurpFile(
+                            upload.file,
+                            nameFolder,
+                            upload.type
+                          ).then((downloadURL) => {
+                            return db
+                              .collection("inscripciones")
+                              .doc(idEstudiante)
+                              .update({ [upload.field]: downloadURL });
+                          })
+                          : Promise.resolve()
+                      );
+
+                      return Promise.all([
+                        ...fileUploads,
+                        ...studentFileUploads,
+                        db
+                          .collection("inscripciones")
+                          .doc(idDoc)
+                          .update({
+                            estudiantes: [{ idEstudiante, perfil: false }],
+                          }),
+                      ]);
+                    })
+                    .then(() => {
+                      // Todo en una línea:
+                      const id = new URLSearchParams(
+                        window.location.search
+                      ).get("id");
+                      if (id) {
+                        var docRef = db.collection("usuarios").doc(id);
+
+                        docRef
+                          .get()
+                          .then((doc) => {
+                            if (doc.exists) {
+                              var recompensa = doc.data().recompensa
+                                ? doc.data().recompensa
+                                : 0;
+                              var totalRecompensa = recompensa + 5000;
+                              docRef
+                                .update({
+                                  recompensa: totalRecompensa,
+                                })
+                                .then(() => {
+                                  console.log("Document successfully updated!");
+                                  const arrToken = doc.data().tokenDevice
+                                    ? doc.data().tokenDevice
+                                    : [];
+                                  arrToken.forEach((token) => {
+                                    fetch(
+                                      "https://exp.host/--/api/v2/push/send",
+                                      {
+                                        method: "POST",
+                                        headers: {
+                                          Accept: "application/json",
+                                          "Accept-encoding": "gzip, deflate",
+                                          "Content-Type": "application/json",
                                         },
-                                        _displayInForeground: true,
-                                        option: "Wallet",
-                                      }),
-                                    }
+                                        mode: "no-cors",
+                                        body: JSON.stringify({
+                                          to: token,
+                                          title: "¡En hora buena! 🍀",
+                                          body: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
+                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                          data: {
+                                            mensaje: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
+                                              } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                            url: `https://refereence.page/notification?mensaje=!¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
+                                              } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                            idUser: doc.data().userId,
+                                            notificacion: "Wallet",
+                                          },
+                                          _displayInForeground: true,
+                                          option: "Wallet",
+                                        }),
+                                      }
+                                    );
+                                  });
+                                })
+                                .catch((error) => {
+                                  // The document probably doesn't exist.
+                                  console.error(
+                                    "Error updating document: ",
+                                    error
                                   );
                                 });
-                              })
-                              .catch((error) => {
-                                // The document probably doesn't exist.
-                                console.error(
-                                  "Error updating document: ",
-                                  error
-                                );
-                              });
-                          } else {
-                            // doc.data() will be undefined in this case
-                            console.log("No such document!");
-                          }
-                        })
-                        .catch((error) => {
-                          console.log("Error getting document:", error);
-                        });
-                    }
-                    modal.hide();
-                    const modalSuccess = new bootstrap.Modal(
-                      document.getElementById("successModal"),
-                      {
-                        backdrop: "static",
-                        keyboard: false,
+                            } else {
+                              // doc.data() will be undefined in this case
+                              console.log("No such document!");
+                            }
+                          })
+                          .catch((error) => {
+                            console.log("Error getting document:", error);
+                          });
                       }
-                    );
-                    modalSuccess.show();
-                  })
-                  .catch((error) => {
-                    console.error("Error in upload process: ", error);
-                    alert("Ocurrió un error al subir los archivos o guardar los datos del estudiante.");
-                  });
-              })
-              .catch((error) => {
-                console.error("Error adding document: ", error);
-                alert("Ocurrió un error al guardar los datos del padre de familia.");
-              });
-            console.log("Registro y pago guardados correctamente.");
-          } catch (firebaseError) {
-            console.error("Error al guardar en Firebase:", firebaseError);
-            alert("Ocurrió un error al guardar los datos en Firebase.");
+                      modal.hide();
+                      const modalSuccess = new bootstrap.Modal(
+                        document.getElementById("successModal"),
+                        {
+                          backdrop: "static",
+                          keyboard: false,
+                        }
+                      );
+                      modalSuccess.show();
+                    })
+                    .catch((error) => {
+                      console.error("Error in upload process: ", error);
+                      alert("Ocurrió un error al subir los archivos o guardar los datos del estudiante.");
+                    });
+                })
+                .catch((error) => {
+                  console.error("Error adding document: ", error);
+                  alert("Ocurrió un error al guardar los datos del padre de familia.");
+                });
+              console.log("Registro y pago guardados correctamente.");
+            } catch (firebaseError) {
+              console.error("Error al guardar en Firebase:", firebaseError);
+              alert("Ocurrió un error al guardar los datos en Firebase.");
+            }
+          } else {
+            const paymentError = data.paymentError
+            if (paymentError) {
+              alert(paymentError.message)
+              modal.hide();
+            } else {
+              alert("El pago no pudo ser procesado")
+              modal.hide();
+            }
           }
+
         } catch (error) {
           console.error("Error:", error);
           alert(error.message || "Ocurrió un error inesperado durante el pago.");
