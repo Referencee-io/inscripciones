@@ -761,29 +761,30 @@
   </script>
   <script src="https://js.stripe.com/v3/"></script>
   <script>
-    // Configurar Stripe
-    const stripe = Stripe(
-      "pk_live_51QDTfLCmoXV3KlChHRuBaE2UFUCvEXQQNzz9j5KtvQHZqKy1xxjWpvAXJhTHjQl79nclHWagiAdPvqEZgSWWjp3L00FNsADkBB"
-    );
+    document.addEventListener("DOMContentLoaded", function () {
+      // Configurar Stripe
+      const stripe = Stripe(
+        "pk_live_51QDTfLCmoXV3KlChHRuBaE2UFUCvEXQQNzz9j5KtvQHZqKy1xxjWpvAXJhTHjQl79nclHWagiAdPvqEZgSWWjp3L00FNsADkBB"
+      );
 
-    // Ocultar el código postal en el elemento de tarjeta
-    const elements = stripe.elements();
-    const cardElement = elements.create("card", {
-      style: {
-        base: {
-          fontSize: "16px",
-          color: "#32325d",
+      // Ocultar el código postal en el elemento de tarjeta
+      const elements = stripe.elements();
+      const cardElement = elements.create("card", {
+        style: {
+          base: {
+            fontSize: "16px",
+            color: "#32325d",
+          },
         },
-      },
-      hidePostalCode: true, // Oculta el campo del código postal
-    });
-    cardElement.mount("#stripe-container");
+        hidePostalCode: true, // Oculta el campo del código postal
+      });
+      cardElement.mount("#stripe-container");
 
-    // Botón de pago
-    document
-      .getElementById("pay-button")
-      .addEventListener("click", async (e) => {
+      // Botón de pago
+      const payButton = document.getElementById("pay-button");
+      payButton.addEventListener("click", async (e) => {
         e.preventDefault();
+        payButton.disabled = true;
         const modal = new bootstrap.Modal(
           document.getElementById("payProcess"),
           {
@@ -793,20 +794,19 @@
         );
         modal.show();
 
-        var name = document.getElementById("parent_firstname").value;
-        var primerApellido = document.getElementById(
+        const name = document.getElementById("parent_firstname").value;
+        const primerApellido = document.getElementById(
           "parent_lastname_father"
         ).value;
-        var segundoApellido = document.getElementById(
+        const segundoApellido = document.getElementById(
           "parent_lastname_mother"
         ).value;
-        var mail = document.getElementById("parent_email").value;
+        const mail = document.getElementById("parent_email").value;
 
         try {
           const res = await fetch(
             "https://foamy-absorbed-huckleberry.glitch.me/create-payment-intent",
             {
-              mode: 'no-cors',
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -816,22 +816,25 @@
                 email: mail,
                 items: [{ concepto: "Inscripción a ciclo 2025-2026" }],
                 currency: "mxn",
-                amount: 5000 * 100,
+                amount: 5000 * 100, // $5000 MXN
                 request_three_d_secure: "automatic",
               }),
             }
           );
 
           if (!res.ok) {
-            const errorData = await res.json();
-            throw new Error(errorData.error || "Error en el servidor");
+            let errorMsg = "Error en el servidor";
+            try {
+              const errorData = await res.json();
+              errorMsg = errorData.error || errorMsg;
+            } catch { }
+            throw new Error(errorMsg);
           }
 
           const data = await res.json();
           console.log("Pago realizado con éxito. Guardando datos...");
 
           // Crear el HTML del recibo
-
           // 1. Obtener la imagen y convertirla a base64
           const imageResponse = await fetch(
             "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2Fjfr_logo.webp?alt=media&token=69dd35e3-4d3f-4515-84ae-44e994ae2bed"
@@ -873,7 +876,7 @@
                           <strong>Monto:</strong>
                         </td>
                         <td class="text-end">
-                          $2000.00 MXN
+                          $5000.00 MXN
                         </td>
                       </tr>
                       <tr>
@@ -974,17 +977,13 @@
               document.getElementById("parent_ine_file").files[0];
 
             const dataPadre = {
-              name: document.getElementById("parent_firstname").value,
-              primerApellido: document.getElementById(
-                "parent_lastname_father"
-              ).value,
-              segundoApellido: document.getElementById(
-                "parent_lastname_mother"
-              ).value,
+              name: name,
+              primerApellido: primerApellido,
+              segundoApellido: segundoApellido,
               rol: "Padre de familia",
               parentesco: document.getElementById("parent_relationship")
                 .value,
-              email: document.getElementById("parent_email").value,
+              email: mail,
               telCasa: document.getElementById("parent_phone_home").value,
               phone: document.getElementById("parent_phone_mobile").value,
               direccion: `${calle} ${numero}, ${colonia}. ${cp}. ${estado}, ${ciudad}`,
@@ -1012,15 +1011,7 @@
               .add(dataPadre)
               .then((docRef) => {
                 const idDoc = docRef.id;
-                var name = document.getElementById("parent_firstname").value;
-                var primerApellido = document.getElementById(
-                  "parent_lastname_father"
-                ).value;
-                var segundoApellido = document.getElementById(
-                  "parent_lastname_mother"
-                ).value;
-                const nameCompleto =
-                  name + " " + primerApellido + " " + segundoApellido;
+                const nameCompleto = `${name} ${primerApellido} ${segundoApellido}`;
 
                 const fileUploads = [
                   { file: inePadre, type: "ine", field: "ine" },
@@ -1041,15 +1032,14 @@
 
                 return uploadAlumno(idDoc, data.id)
                   .then((idEstudiante) => {
-                    var name =
-                      document.getElementById("student_firstname").value;
-                    var primerApellido = document.getElementById(
+                    const nameAlumno = document.getElementById("student_firstname").value;
+                    const primerApellidoAlumno = document.getElementById(
                       "student_lastname_father"
                     ).value;
-                    var segundoApellido = document.getElementById(
+                    const segundoApellidoAlumno = document.getElementById(
                       "student_lastname_mother"
                     ).value;
-                    const nameFolder = `${name} ${primerApellido} ${segundoApellido}_${idEstudiante}`;
+                    const nameFolder = `${nameAlumno} ${primerApellidoAlumno} ${segundoApellidoAlumno}_${idEstudiante}`;
                     const curpFileEstudiante =
                       document.getElementById("academic_curp_file").files[0];
                     const actaNacimientoEstudiante = document.getElementById(
@@ -1116,7 +1106,7 @@
                             var recompensa = doc.data().recompensa
                               ? doc.data().recompensa
                               : 0;
-                            var totalRecompensa = recompensa + 2000;
+                            var totalRecompensa = recompensa + 5000;
                             docRef
                               .update({
                                 recompensa: totalRecompensa,
@@ -1141,12 +1131,12 @@
                                         to: token,
                                         title: "¡En hora buena! 🍀",
                                         body: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                          } se ha inscrito y has ganado $2,000 de recompensa.`,
+                                          } se ha inscrito y has ganado $5,000 de recompensa.`,
                                         data: {
                                           mensaje: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                            } se ha inscrito y has ganado $2,000 de recompensa.`,
+                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
                                           url: `https://refereence.page/notification?mensaje=!¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                            } se ha inscrito y has ganado $2,000 de recompensa.`,
+                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
                                           idUser: doc.data().userId,
                                           notificacion: "Wallet",
                                         },
@@ -1185,22 +1175,28 @@
                   })
                   .catch((error) => {
                     console.error("Error in upload process: ", error);
+                    alert("Ocurrió un error al subir los archivos o guardar los datos del estudiante.");
                   });
               })
               .catch((error) => {
                 console.error("Error adding document: ", error);
+                alert("Ocurrió un error al guardar los datos del padre de familia.");
               });
             console.log("Registro y pago guardados correctamente.");
           } catch (firebaseError) {
             console.error("Error al guardar en Firebase:", firebaseError);
-            alert("Ocurrió un error al guardar los datos.");
+            alert("Ocurrió un error al guardar los datos en Firebase.");
           }
         } catch (error) {
           console.error("Error:", error);
-          // Aquí puedes mostrar el error al usuario
-          throw error;
+          alert(error.message || "Ocurrió un error inesperado durante el pago.");
+        } finally {
+          payButton.disabled = false;
         }
       });
+
+      // ... El resto del script permanece igual ...
+    });
 
     function uploadCurpFile(file, usuario, carpeta) {
       // Validate inputs
