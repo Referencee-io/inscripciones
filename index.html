@@ -814,7 +814,6 @@
               body: JSON.stringify({
                 name: `${name} ${primerApellido} ${segundoApellido}`,
                 email: mail,
-                items: [{ concepto: "Inscripción a ciclo 2025-2026" }],
                 currency: "mxn",
                 amount: 5000 * 100, // $5000 MXN
                 request_three_d_secure: "automatic",
@@ -833,9 +832,28 @@
           }
 
           const data = await res.json();
+          const clientSecret = data.clientSecret;
 
-          if (data.status == "success") {
-            console.log(data)
+          const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                name: `${name} ${primerApellido} ${segundoApellido}`,
+                email: mail,
+              },
+            },
+          });
+
+          if (error) {
+            alert(error.message || "Error al procesar el pago.");
+            modal.hide();
+            payButton.disabled = false;
+            return;
+          }
+
+          if (paymentIntent && paymentIntent.status === "succeeded") {
+            // Aquí va el resto de tu lógica: mostrar recibo, guardar en Firebase, etc.
+            // Usa paymentIntent.id como ID de pago.
             console.log("Pago realizado con éxito. Guardando datos...");
 
             // Crear el HTML del recibo
@@ -872,7 +890,7 @@
                           <strong>ID de Pago:</strong>
                         </td>
                         <td class="text-end text-break">
-                          ${data.id}
+                          ${paymentIntent.id}
                         </td>
                       </tr>
                       <tr>
@@ -1110,7 +1128,7 @@
                               var recompensa = doc.data().recompensa
                                 ? doc.data().recompensa
                                 : 0;
-                              var totalRecompensa = recompensa + 5000;
+                              var totalRecompensa = recompensa + 2000;
                               docRef
                                 .update({
                                   recompensa: totalRecompensa,
@@ -1192,16 +1210,11 @@
               alert("Ocurrió un error al guardar los datos en Firebase.");
             }
           } else {
-            const paymentError = data.paymentError
-            if (paymentError) {
-              alert(paymentError.message)
-              modal.hide();
-            } else {
-              alert("El pago no pudo ser procesado")
-              modal.hide();
-            }
+            alert("El pago no pudo ser procesado.");
+            modal.hide();
+            payButton.disabled = false;
+            return;
           }
-
         } catch (error) {
           console.error("Error:", error);
           alert(error.message || "Ocurrió un error inesperado durante el pago.");
@@ -1209,8 +1222,6 @@
           payButton.disabled = false;
         }
       });
-
-      // ... El resto del script permanece igual ...
     });
 
     function uploadCurpFile(file, usuario, carpeta) {
