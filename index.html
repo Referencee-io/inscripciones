@@ -654,7 +654,7 @@
     <div class="form-page">
       <h2>Información de Pago</h2>
       <p><strong>Concepto:</strong> Inscripción al ciclo escolar 2025-2026</p>
-      <p><strong>Monto:</strong> $5,000.00 MXN</p>
+      <p><strong>Monto:</strong> $6,500.00 MXN</p>
 
       <div id="stripe-container">
         <div id="card-element"></div>
@@ -815,7 +815,7 @@
                 name: `${name} ${primerApellido} ${segundoApellido}`,
                 email: mail,
                 currency: "mxn",
-                amount: 5000 * 100, // $5000 MXN
+                amount: 6500 * 100, // $6500 MXN
                 request_three_d_secure: "automatic",
               }),
             }
@@ -898,7 +898,7 @@
                           <strong>Monto:</strong>
                         </td>
                         <td class="text-end">
-                          $5000.00 MXN
+                          $6500.00 MXN
                         </td>
                       </tr>
                       <tr>
@@ -1153,12 +1153,12 @@
                                           to: token,
                                           title: "¡En hora buena! 🍀",
                                           body: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                            } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                            } se ha inscrito y has ganado $2,000 de recompensa.`,
                                           data: {
                                             mensaje: `¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                              } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                              } se ha inscrito y has ganado $2,000 de recompensa.`,
                                             url: `https://refereence.page/notification?mensaje=!¡Felicidades! Un usuario al que has referido a ${doc.data().escuela
-                                              } se ha inscrito y has ganado $5,000 de recompensa.`,
+                                              } se ha inscrito y has ganado $2,000 de recompensa.`,
                                             idUser: doc.data().userId,
                                             notificacion: "Wallet",
                                           },
