@@ -133,6 +133,13 @@
             color: #076593;
         }
 
+        /* Excluir labels de checkbox y radio de los estilos generales */
+        .form-check-label {
+            font-weight: normal;
+            color: #333;
+            display: inline;
+        }
+
         input,
         select {
             width: 100%;
@@ -416,10 +423,128 @@
                     </select>
                 </div>
                 <div class="col-md-7">
-                    <label for="student_illness_details">Especifique la enfermedad o alergia</label>
-                    <input type="text" name="student_illness_details" id="student_illness_details" />
+                    <label for="student_illness_details">Especifique la enfermedad o
+                        alergia</label>
+                    <input type="text" name="student_illness_details" id="student_illness_details"
+                        placeholder="Por ejemplo: asma, diabetes, epilepsia,etc." />
                 </div>
             </div>
+
+            <label for="student_food_environmental_allergy">¿Tu hijo(a) tiene alguna alergia alimentaria o
+                ambiental?</label>
+            <input type="text" name="student_food_environmental_allergy" id="student_food_environmental_allergy"
+                placeholder="Por ejemplo: nuez, piquetes de abeja, polve, etc." />
+
+            <div class="mt-3">
+                <label>
+                    ¿El alumno(a) ha sido diagnosticado con alguna condición neurodivergente?<br>
+                    <span class="text-muted fw-medium" style="font-size: 0.95em;">
+                        (Neurodivergente se refiere a condiciones como TDAH, autismo, dislexia, entre otras)
+                    </span>
+                </label>
+                <p class="mb-1 text-muted" style="font-size: 0.92em;">
+                    La información proporcionada es confidencial y tiene como finalidad brindarle al alumno(a) un
+                    entorno educativo adecuado y de apoyo
+                </p>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="student_neurodivergent"
+                            id="student_neurodivergent_si" value="sí" required>
+                        <label class="form-check-label" for="student_neurodivergent_si">Sí</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="student_neurodivergent"
+                            id="student_neurodivergent_no" value="no">
+                        <label class="form-check-label" for="student_neurodivergent_no">No</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="student_neurodivergent"
+                            id="student_neurodivergent_proceso" value="en_proceso">
+                        <label class="form-check-label" for="student_neurodivergent_proceso">En proceso de
+                            evaluación</label>
+                    </div>
+                </div>
+
+                <div class="mt-3" id="neurodivergent_types_container" style="display: none;">
+                    <label>
+                        Por favor, selecciona la neurodivergencia diagnosticada o en evaluación:<br>
+                        <span class="text-muted fw-medium" style="font-size: 0.95em;">
+                            (Puedes seleccionar más de una opción si aplica)
+                        </span>
+                    </label>
+                    <div class="row row-cols-1 row-cols-sm-2 g-2 mt-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_tdah" value="tdah">
+                            <label class="form-check-label" for="neurodivergent_tdah">Trastorno por Déficit de Atención
+                                con o sin Hiperactividad (TDA/TDAH)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_tea" value="tea">
+                            <label class="form-check-label" for="neurodivergent_tea">Trastorno del Espectro Autista
+                                (TEA)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_dislexia" value="dislexia">
+                            <label class="form-check-label" for="neurodivergent_dislexia">Dislexia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_discalculia" value="discalculia">
+                            <label class="form-check-label" for="neurodivergent_discalculia">Discalculia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_dispraxia" value="dispraxia">
+                            <label class="form-check-label" for="neurodivergent_dispraxia">Dispraxia</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_disgrafia" value="disgrafia">
+                            <label class="form-check-label" for="neurodivergent_disgrafia">Disgrafía</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_sensorial" value="procesamiento_sensorial">
+                            <label class="form-check-label" for="neurodivergent_sensorial">Trastorno de Procesamiento
+                                Sensorial</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_ansiedad" value="ansiedad_infantil">
+                            <label class="form-check-label" for="neurodivergent_ansiedad">Trastorno de Ansiedad
+                                Infantil</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_tel" value="tel">
+                            <label class="form-check-label" for="neurodivergent_tel">Trastorno del Lenguaje
+                                (TEL)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_superdotacion" value="alta_capacidad">
+                            <label class="form-check-label" for="neurodivergent_superdotacion">Alta
+                                Capacidad/Superdotación</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="student_neurodivergent_type[]"
+                                id="neurodivergent_otro" value="otro">
+                            <label class="form-check-label" for="neurodivergent_otro">Otro</label>
+                        </div>
+                    </div>
+
+                    <div id="neurodivergent_otro_container" style="display: none; margin-top: 10px;">
+                        <label for="neurodivergent_otro_especificar">Especifica la otra condición:</label>
+                        <input type="text" id="neurodivergent_otro_especificar" name="neurodivergent_otro_especificar"
+                            placeholder="Por favor, especifica..." />
+                    </div>
+                </div>
+            </div>
+
+
 
             <label for="student_religion">Religión</label>
             <input type="text" name="student_religion" id="student_religion" />
@@ -432,26 +557,6 @@
         <!-- Paso 2: Datos Académicos -->
         <div class="form-page">
             <h2>Datos Académicos</h2>
-            <div class="row g-3 align-items-center">
-                <div class="col-md-6">
-                    <label for="academic_level">Nivel Escolar actual</label>
-                    <select name="academic_level" id="academic_level" required>
-                        <option value="seleccione">Seleccione</option>
-                        <option value="Preescolar">Preescolar</option>
-                        <option value="Primaria">Primaria</option>
-                        <option value="Secundaria">Secundaria</option>
-                        <option value="Preparatoria">Preparatoria</option>
-                    </select>
-                </div>
-
-                <div class="col-md-6">
-                    <label for="academic_grade">Grado actual</label>
-                    <select name="academic_grade" id="academic_grade" required>
-                        <option value="seleccione">Seleccione</option>
-                    </select>
-                </div>
-            </div>
-
             <div class="row g-3 align-items-center">
                 <div class="col-md-4">
                     <label for="academic_newLevel">Nivel Escolar por cursar</label>
@@ -476,6 +581,10 @@
                     <input type="text" id="ciclo" value="2026-2027" disabled />
                 </div>
             </div>
+
+            <label for="academic_average">Promedio</label>
+            <input type="number" name="academic_average" id="academic_average" min="6" max="10" step="0.1"
+                placeholder="Ejemplo: 9.5" required />
 
             <label for="academic_previous_school">Escuela de Procedencia</label>
             <input type="text" name="academic_previous_school" id="academic_previous_school" required />
@@ -655,7 +764,7 @@
         <div class="form-page">
             <h2>Información de Pago</h2>
             <p><strong>Concepto:</strong> Inscripción al ciclo escolar 2026-2027</p>
-            <p><strong>Monto:</strong> $6,500.00 MXN</p>
+            <p><strong>Monto:</strong> $3,250.00 MXN (1er parcialidad de 2)</p>
 
             <div id="stripe-container">
                 <div id="card-element"></div>
@@ -726,6 +835,69 @@
         </div>
     </div>
 
+    <!-- Modal de Pago Fallido -->
+    <div class="modal fade" id="paymentErrorModal" tabindex="-1"
+        style="background: rgba(0,0,0,.6); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+
+                <div class="modal-header border-0 pb-0 d-flex justify-content-center position-relative">
+                    <div class="text-center mt-3">
+                        <div
+                            style="width: 60px; height: 60px; background-color: #ffe5e5; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                            <i class="bi bi-credit-card-fill" style="font-size: 30px; color: #dc3545;"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark">Atención requerida</h5>
+                    </div>
+                </div>
+
+                <div class="modal-body text-center px-4 pt-2">
+                    <p class="text-success fw-bold mb-1" style="font-size: 0.95rem;">
+                        <span style="margin-right: 5px;">&#10003;</span> Tus datos se registraron correctamente.
+                    </p>
+
+                    <p class="text-secondary mb-3">
+                        Sin embargo, el proceso de cobro automático no pudo completarse.
+                    </p>
+
+                    <p id="paymentErrorReason"
+                        class="text-danger small bg-light p-2 rounded border border-danger-subtle d-inline-block">
+                    </p>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <div class="card border-primary border-opacity-25 bg-primary bg-opacity-10 mb-3">
+                        <div class="card-body py-3">
+                            <p class="mb-2 small text-primary fw-bold text-uppercase ls-1">
+                                <i class="bi bi-shield-lock-fill mb-1 me-1"></i>
+                                Enlace seguro de pago
+                            </p>
+                            <p class="mb-0 small text-muted">
+                                Puedes completar tu transacción de forma segura a través de Stripe:
+                            </p>
+                            <a id="stripeURL" href="https://buy.stripe.com/00g00g2Jn3pm1YQbII" target="_blank"
+                                class="btn btn-primary btn-sm mt-2 w-100 fw-bold shadow-sm">
+                                Pagar ahora con Link
+                            </a>
+                        </div>
+                    </div>
+
+                    <p class="text-muted small mt-3 fst-italic">
+                        Alternativa: Acude al departamento de contabilidad.
+                    </p>
+                </div>
+
+                <div class="modal-footer border-0 justify-content-center pb-4">
+                    <button id="restartFormBtn" type="button" class="btn btn-outline-secondary px-4">
+                        Cerrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
     <!-- MOMENT JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
     <!-- FIREBASE SCRIPTS -->
@@ -760,6 +932,9 @@
         //Variables para acceder a la storage
         const storage = firebase.storage();
         const storageRef = storage.ref();
+        // Configurar la región de Functions
+        const functions = firebase.functions();
+        functions.useFunctionsEmulator = false;
     </script>
     <script src="https://js.stripe.com/v3/"></script>
     <script>
@@ -769,7 +944,7 @@
 
             try {
                 // Obtener la clave pública de Stripe desde Firebase Functions
-                const obtenerClavePublica = firebase.functions().httpsCallable('obtenerClavePublicaStripe');
+                const obtenerClavePublica = functions.httpsCallable('obtenerClavePublicaStripe');
                 const result = await obtenerClavePublica();
                 const publishableKey = result.data.publishableKey;
 
@@ -796,425 +971,212 @@
                 return;
             }
 
+
+
+
+
             // Botón de pago
             const payButton = document.getElementById("pay-button");
             payButton.addEventListener("click", async (e) => {
                 e.preventDefault();
 
-                // Validar que Stripe esté inicializado
                 if (!stripe || !cardElement) {
-                    alert("El sistema de pagos no está listo. Por favor, recarga la página.");
+                    alert("El sistema de pagos no está listo. Recarga la página.");
                     return;
                 }
 
                 payButton.disabled = true;
-                const modal = new bootstrap.Modal(
-                    document.getElementById("payProcess"),
-                    {
-                        backdrop: "static",
-                        keyboard: false,
-                    }
-                );
+
+                const modal = new bootstrap.Modal(document.getElementById("payProcess"), {
+                    backdrop: "static",
+                    keyboard: false,
+                });
                 modal.show();
 
-                const name = document.getElementById("parent_firstname").value;
-                const primerApellido = document.getElementById(
-                    "parent_lastname_father"
-                ).value;
-                const segundoApellido = document.getElementById(
-                    "parent_lastname_mother"
-                ).value;
-                const mail = document.getElementById("parent_email").value;
+                let idPadreDoc = null;
+                let idEstudianteDoc = null;
+                let paymentIntentId = null;
 
                 try {
-                    // Llamar a la Cloud Function de Firebase para crear el PaymentIntent
-                    const crearPagoInscripcion = firebase.functions().httpsCallable('crearPagoInscripcion');
+                    // ============================================
+                    // 1. CAPTURAR DATOS DEL FORMULARIO
+                    // ============================================
+                    const padreData = {
+                        name: document.getElementById("parent_firstname").value,
+                        primerApellido: document.getElementById("parent_lastname_father").value,
+                        segundoApellido: document.getElementById("parent_lastname_mother").value,
+                        rol: "Padre de familia",
+                        parentesco: document.getElementById("parent_relationship").value,
+                        email: document.getElementById("parent_email").value,
+                        telCasa: document.getElementById("parent_phone_home").value,
+                        phone: document.getElementById("parent_phone_mobile").value,
+                        direccion: `${document.getElementById("address_street").value} ${document.getElementById("address_number").value}, ${document.getElementById("address_colony").value}. ${document.getElementById("address_zipcode").value}. ${document.getElementById("address_state").value}, ${document.getElementById("address_city").value}`,
+                        ocupacion: document.getElementById("parent_occupation").value,
+                        estadoCivil: document.getElementById("parent_marital_status").value,
+                        estudiantes: [],
+                        contacto: {
+                            name: document.getElementById("emergency_firstname").value,
+                            primerApellido: document.getElementById("emergency_lastname_father").value,
+                            segundoApellido: document.getElementById("emergency_lastname_mother").value,
+                            parentesco: document.getElementById("emergency_relationship").value,
+                            phone: document.getElementById("emergency_phone").value,
+                        },
+                        createAt: firebase.firestore.Timestamp.now(),
+                    };
+
+                    const inePadreFile = document.getElementById("parent_ine_file").files[0];
+                    const curpEstudianteFile = document.getElementById("academic_curp_file").files[0];
+                    const actaNacimiento = document.getElementById("academic_birth_certificate").files[0];
+                    const boleta = document.getElementById("academic_report_card").files[0];
+
+                    // ============================================
+                    // 2. GUARDAR PADRE Y ESTUDIANTE
+                    // ============================================
+                    const padreRef = await db.collection("inscripciones").add(padreData);
+                    idPadreDoc = padreRef.id;
+
+                    idEstudianteDoc = await uploadAlumno(idPadreDoc, "");
+
+                    // ============================================
+                    // 3. SUBIR ARCHIVOS (solo si ambos docs existen)
+                    // ============================================
+                    const folderAlumno = `${document.getElementById("student_firstname").value} ${document.getElementById("student_lastname_father").value} ${document.getElementById("student_lastname_mother").value}_${idEstudianteDoc}`;
+                    const padreNombre = `${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}`;
+
+                    const uploadPromises = [];
+
+                    if (inePadreFile) {
+                        uploadPromises.push(
+                            uploadCurpFile(inePadreFile, `${padreNombre}_${idPadreDoc}`, "ine")
+                                .then(url => db.collection("inscripciones").doc(idPadreDoc).update({ ine: url }))
+                        );
+                    }
+                    if (curpEstudianteFile) {
+                        uploadPromises.push(
+                            uploadCurpFile(curpEstudianteFile, folderAlumno, "curp")
+                                .then(url => db.collection("inscripciones").doc(idEstudianteDoc).update({ curpFile: url }))
+                        );
+                    }
+                    if (actaNacimiento) {
+                        uploadPromises.push(
+                            uploadCurpFile(actaNacimiento, folderAlumno, "acta_nacimiento")
+                                .then(url => db.collection("inscripciones").doc(idEstudianteDoc).update({ actaNacimiento: url }))
+                        );
+                    }
+                    if (boleta) {
+                        uploadPromises.push(
+                            uploadCurpFile(boleta, folderAlumno, "boleta")
+                                .then(url => db.collection("inscripciones").doc(idEstudianteDoc).update({ boleta: url }))
+                        );
+                    }
+
+                    await Promise.all(uploadPromises);
+
+                    // ============================================
+                    // 4. ACTUALIZAR PADRE → LISTA DE ESTUDIANTES
+                    // ============================================
+                    await db.collection("inscripciones").doc(idPadreDoc).update({
+                        estudiantes: [{ idEstudiante: idEstudianteDoc, perfil: false }],
+                    });
+
+                    // --------------------------------------------
+                    // 4.1 AGREGAR REFERIDO POR (opcional)
+                    // --------------------------------------------
+                    const refId = new URLSearchParams(window.location.search).get("id");
+                    if (refId) {
+                        const docUser = await db.collection("usuarios").doc(refId).get();
+                        if (docUser.exists) {
+                            const u = docUser.data();
+                            await db.collection("inscripciones").doc(idPadreDoc).update({
+                                referidoPor: {
+                                    name: `${u.name} ${u.primerApellido} ${u.segundoApellido}`,
+                                    userId: refId
+                                }
+                            });
+                        }
+                    }
+
+                    // ============================================
+                    // 5. CREAR PAYMENT INTENT
+                    // ============================================
+                    const crearPagoInscripcion = functions.httpsCallable("crearPagoInscripcion");
 
                     const result = await crearPagoInscripcion({
-                        name: `${name} ${primerApellido} ${segundoApellido}`,
-                        email: mail,
+                        name: `${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}`,
+                        email: padreData.email,
                         currency: "mxn",
-                        amount: 6500 * 100, // $6500 MXN
+                        amount: 3250 * 100,
                         request_three_d_secure: "automatic",
                     });
 
-                    console.log("PaymentIntent creado:", result.data);
-
                     const clientSecret = result.data.clientSecret;
 
+                    // ============================================
+                    // 6. CONFIRMAR PAGO
+                    // ============================================
                     const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
                         payment_method: {
                             card: cardElement,
                             billing_details: {
-                                name: `${name} ${primerApellido} ${segundoApellido}`,
-                                email: mail,
+                                name: `${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}`,
+                                email: padreData.email,
                             },
                         },
                     });
 
                     if (error) {
-                        alert(error.message || "Error al procesar el pago.");
-                        modal.hide();
-                        payButton.disabled = false;
+
+                        modal.hide(); // cierra el modal de proceso
+
+                        const errorModal = new bootstrap.Modal(
+                            document.getElementById("paymentErrorModal"),
+                            { backdrop: "static", keyboard: false }
+                        );
+
+                        // Mostrar detalle del error dentro del modal
+                        document.getElementById("paymentErrorReason").textContent =
+                            `Motivo: ${error.message}`;
+
+                        errorModal.show();
+
+
                         return;
                     }
 
-                    if (paymentIntent && paymentIntent.status === "succeeded") {
-                        // Aquí va el resto de tu lógica: mostrar recibo, guardar en Firebase, etc.
-                        // Usa paymentIntent.id como ID de pago.
-                        console.log("Pago realizado con éxito. Guardando datos...");
+                    // ============================================
+                    // 7. PAGO EXITOSO → GUARDAR REFERENCIA
+                    // ============================================
+                    if (paymentIntent.status === "succeeded") {
+                        paymentIntentId = paymentIntent.id;
 
-                        // Crear el HTML del recibo
-                        // 1. Obtener la imagen y convertirla a base64
-                        const imageResponse = await fetch(
-                            "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2Fjfr_logo.webp?alt=media&token=69dd35e3-4d3f-4515-84ae-44e994ae2bed"
-                        );
-                        const blob = await imageResponse.blob();
-                        const base64Image = await new Promise((resolve) => {
-                            const reader = new FileReader();
-                            reader.onloadend = () => resolve(reader.result.split(",")[1]);
-                            reader.readAsDataURL(blob);
+                        await db.collection("inscripciones").doc(idEstudianteDoc).update({
+                            referenciaPago: paymentIntentId
                         });
 
-                        const receiptContent = `
-          <div class="container py-4">
-            <div class="card shadow-sm mx-auto" style="max-width: 768px;">
-              <div class="card-body p-4">
-                <!-- Logo -->
-                <div class="text-center mb-4">
-                  <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
-                </div>
-
-                <!-- Encabezado -->
-                <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
-                <hr class="my-4">
-
-                <!-- Información del pago -->
-                <div class="table-responsive">
-                  <table class="table table-borderless">
-                    <tbody>
-                      <tr>
-                        <td class="text-muted fw-medium" style="width: 40%;">
-                          <strong>ID de Pago:</strong>
-                        </td>
-                        <td class="text-end text-break">
-                          ${paymentIntent.id}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Monto:</strong>
-                        </td>
-                        <td class="text-end">
-                          $6500.00 MXN
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Método de Pago:</strong>
-                        </td>
-                        <td class="text-end">
-                          Tarjeta
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Concepto:</strong>
-                        </td>
-                        <td class="text-end text-break">
-                          Inscripción al Ciclo Escolar 2026-2027
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Fecha y Hora:</strong>
-                        </td>
-                        <td class="text-end">
-                          ${moment().format("DD/MM/YYYY, HH:mm:ss")}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Nombre del Pagador:</strong>
-                        </td>
-                        <td class="text-end text-break">
-                          ${name} ${primerApellido} ${segundoApellido}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-
-                <!-- Nota -->
-                <p class="text-center text-muted small mt-4 mb-0">
-                  Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
-                </p>
-              </div>
-            </div>
-          </div>
-        `;
-
-                        // Insertar el contenido en el modal
-                        document.getElementById("receiptContent").innerHTML =
-                            receiptContent;
-
-                        // Manejar la descarga del PDF
-                        document
-                            .getElementById("downloadReceipt")
-                            .addEventListener("click", async () => {
-                                const element = document.getElementById("receiptContent");
-
-                                // Forzar carga de imágenes antes de generar el PDF
-                                const images = element.querySelectorAll("img");
-                                await Promise.all(
-                                    Array.from(images).map((img) => {
-                                        return new Promise((resolve, reject) => {
-                                            if (img.complete) {
-                                                resolve();
-                                            } else {
-                                                img.onload = resolve;
-                                                img.onerror = reject;
-                                            }
-                                        });
-                                    })
-                                );
-
-                                // Generar el PDF con html2pdf.js
-                                html2pdf()
-                                    .from(element)
-                                    .set({
-                                        margin: 1,
-                                        filename: "recibo.pdf",
-                                        html2canvas: { scale: 2 }, // Aumenta la calidad del renderizado
-                                        jsPDF: {
-                                            unit: "in",
-                                            format: "letter",
-                                            orientation: "portrait",
-                                        },
-                                    })
-                                    .save();
-                            });
-
-                        // Enviar los datos del formulario a Firebase
-                        try {
-                            const calle = document.getElementById("address_street").value;
-                            const numero = document.getElementById("address_number").value;
-                            const colonia = document.getElementById("address_colony").value;
-                            const cp = document.getElementById("address_zipcode").value;
-                            const estado = document.getElementById("address_state").value;
-                            const ciudad = document.getElementById("address_city").value;
-                            const inePadre =
-                                document.getElementById("parent_ine_file").files[0];
-
-                            const dataPadre = {
-                                name: name,
-                                primerApellido: primerApellido,
-                                segundoApellido: segundoApellido,
-                                rol: "Padre de familia",
-                                parentesco: document.getElementById("parent_relationship")
-                                    .value,
-                                email: mail,
-                                telCasa: document.getElementById("parent_phone_home").value,
-                                phone: document.getElementById("parent_phone_mobile").value,
-                                direccion: `${calle} ${numero}, ${colonia}. ${cp}. ${estado}, ${ciudad}`,
-                                ocupacion: document.getElementById("parent_occupation").value,
-                                estadoCivil: document.getElementById("parent_marital_status")
-                                    .value,
-                                estudiantes: [],
-                                contacto: {
-                                    name: document.getElementById("emergency_firstname").value,
-                                    primerApellido: document.getElementById(
-                                        "emergency_lastname_father"
-                                    ).value,
-                                    segundoApellido: document.getElementById(
-                                        "emergency_lastname_mother"
-                                    ).value,
-                                    parentesco: document.getElementById("emergency_relationship")
-                                        .value,
-                                    phone: document.getElementById("emergency_phone").value,
-                                },
-                                createAt: firebase.firestore.Timestamp.now(),
-                            };
-
-                            // Enviar los datos a Firebase
-                            db.collection("inscripciones")
-                                .add(dataPadre)
-                                .then((docRef) => {
-                                    const idDoc = docRef.id;
-                                    const nameCompleto = `${name} ${primerApellido} ${segundoApellido}`;
-
-                                    const fileUploads = [
-                                        { file: inePadre, type: "ine", field: "ine" },
-                                    ].map((upload) =>
-                                        upload.file
-                                            ? uploadCurpFile(
-                                                upload.file,
-                                                nameCompleto + "_" + idDoc,
-                                                upload.type
-                                            ).then((downloadURL) => {
-                                                return db
-                                                    .collection("inscripciones")
-                                                    .doc(idDoc)
-                                                    .update({ [upload.field]: downloadURL });
-                                            })
-                                            : Promise.resolve()
-                                    );
-
-                                    return uploadAlumno(idDoc, paymentIntent.id)
-                                        .then((idEstudiante) => {
-                                            const nameAlumno = document.getElementById("student_firstname").value;
-                                            const primerApellidoAlumno = document.getElementById(
-                                                "student_lastname_father"
-                                            ).value;
-                                            const segundoApellidoAlumno = document.getElementById(
-                                                "student_lastname_mother"
-                                            ).value;
-                                            const nameFolder = `${nameAlumno} ${primerApellidoAlumno} ${segundoApellidoAlumno}_${idEstudiante}`;
-                                            const curpFileEstudiante =
-                                                document.getElementById("academic_curp_file").files[0];
-                                            const actaNacimientoEstudiante = document.getElementById(
-                                                "academic_birth_certificate"
-                                            ).files[0];
-                                            const boletaEstudiante = document.getElementById(
-                                                "academic_report_card"
-                                            ).files[0];
-
-                                            const studentFileUploads = [
-                                                {
-                                                    file: curpFileEstudiante,
-                                                    type: "curp",
-                                                    field: "curpFile",
-                                                },
-                                                {
-                                                    file: actaNacimientoEstudiante,
-                                                    type: "acta_nacimiento",
-                                                    field: "actaNacimiento",
-                                                },
-                                                {
-                                                    file: boletaEstudiante,
-                                                    type: "boleta",
-                                                    field: "boleta",
-                                                },
-                                            ].map((upload) =>
-                                                upload.file
-                                                    ? uploadCurpFile(
-                                                        upload.file,
-                                                        nameFolder,
-                                                        upload.type
-                                                    ).then((downloadURL) => {
-                                                        return db
-                                                            .collection("inscripciones")
-                                                            .doc(idEstudiante)
-                                                            .update({ [upload.field]: downloadURL });
-                                                    })
-                                                    : Promise.resolve()
-                                            );
-
-                                            return Promise.all([
-                                                ...fileUploads,
-                                                ...studentFileUploads,
-                                                db
-                                                    .collection("inscripciones")
-                                                    .doc(idDoc)
-                                                    .update({
-                                                        estudiantes: [{ idEstudiante, perfil: false }],
-                                                    }),
-                                            ]);
-                                        })
-                                        .then(() => {
-                                            const id = new URLSearchParams(window.location.search).get("id");
-                                            if (id) {
-                                                const docRef = db.collection("usuarios").doc(id);
-
-                                                docRef.get().then((doc) => {
-                                                    if (doc.exists) {
-                                                        const userData = doc.data();
-
-                                                        // Agregar referidoPor al primer documento creado (idDoc)
-                                                        db.collection("inscripciones")
-                                                            .doc(idDoc)
-                                                            .update({
-                                                                referidoPor: {
-                                                                    name: `${userData.name} ${userData.primerApellido} ${userData.segundoApellido}`,
-                                                                    userId: id
-                                                                }
-                                                            })
-                                                            .then(() => {
-                                                                console.log("Campo referidoPor agregado correctamente.");
-                                                            })
-                                                            .catch((error) => {
-                                                                console.error("Error al agregar referidoPor:", error);
-                                                            });
-                                                    } else {
-                                                        console.log("No such document!");
-                                                    }
-                                                })
-                                                    .catch((error) => {
-                                                        console.log("Error getting document:", error);
-                                                    });
-                                            }
-
-                                            modal.hide();
-                                            const modalSuccess = new bootstrap.Modal(
-                                                document.getElementById("successModal"),
-                                                {
-                                                    backdrop: "static",
-                                                    keyboard: false,
-                                                }
-                                            );
-                                            modalSuccess.show();
-                                        })
-                                        .catch((error) => {
-                                            console.error("Error in upload process: ", error);
-                                            alert("Ocurrió un error al subir los archivos o guardar los datos del estudiante.");
-                                        });
-                                })
-                                .catch((error) => {
-                                    console.error("Error adding document: ", error);
-                                    alert("Ocurrió un error al guardar los datos del padre de familia.");
-                                });
-                            console.log("Registro y pago guardados correctamente.");
-                        } catch (firebaseError) {
-                            console.error("Error al guardar en Firebase:", firebaseError);
-                            alert("Ocurrió un error al guardar los datos en Firebase.");
-                        }
-                    } else {
-                        alert("El pago no pudo ser procesado.");
                         modal.hide();
-                        payButton.disabled = false;
+
+                        const modalSuccess = new bootstrap.Modal(
+                            document.getElementById("successModal"),
+                            { backdrop: "static", keyboard: false }
+                        );
+
+                        modalSuccess.show();
                         return;
                     }
-                } catch (error) {
-                    console.error("Error:", error);
 
-                    // Manejo específico de errores de Firebase Functions
-                    let errorMessage = "Ocurrió un error inesperado durante el pago.";
+                } catch (err) {
+                    console.error(err);
 
-                    if (error.code) {
-                        // Error de Firebase Functions
-                        switch (error.code) {
-                            case "failed-precondition":
-                                errorMessage = "Error de configuración del servidor. Contacte al administrador.";
-                                break;
-                            case "invalid-argument":
-                                errorMessage = error.message || "Los datos proporcionados no son válidos.";
-                                break;
-                            case "internal":
-                                errorMessage = error.message || "Error interno del servidor.";
-                                break;
-                            default:
-                                errorMessage = error.message || errorMessage;
-                        }
-                    } else if (error.message) {
-                        errorMessage = error.message;
-                    }
-
-                    alert(errorMessage);
+                    modal.hide();
+                    alert(err.message || "Error inesperado en el procesamiento.");
                 } finally {
                     payButton.disabled = false;
                 }
             });
+
         });
+
+
 
         function uploadCurpFile(file, usuario, carpeta) {
             // Validate inputs
@@ -1272,19 +1234,28 @@
                     religion: document.getElementById("student_religion").value,
                     observaciones: document.getElementById("student_observations")
                         .value,
-                    nivelEscolarActual: document.getElementById("academic_level").value,
-                    gradoActual: document.getElementById("academic_grade").value,
+                    alergias: document.getElementById("student_food_environmental_allergy")
+                        .value,
+                    condicionNeurodivergente: document.querySelector('input[name="student_neurodivergent"]:checked')?.value || "no",
+                    neurodivergencia: Array.from(document.querySelectorAll('input[name="student_neurodivergent_type[]"]:checked')).map(cb => {
+                        if (cb.value === 'otro') {
+                            const otroInput = document.getElementById('neurodivergent_otro_especificar');
+                            return otroInput && otroInput.value ? `Otro: ${otroInput.value}` : 'Otro';
+                        }
+                        return cb.value;
+                    }),
                     nivelEscolarProximo:
                         document.getElementById("academic_newLevel").value,
                     gradoProximo: document.getElementById("academic_newGrade").value,
                     cicloEscolar: document.getElementById("ciclo").value,
+                    promedio: parseFloat(document.getElementById("academic_average").value) || 0,
                     escuelaProveniente: document.getElementById(
                         "academic_previous_school"
                     ).value,
                     rol: "Estudiante/Alumno",
                     curp: document.getElementById("academic_curp").value,
                     createAt: new Date(),
-                    referenciaPago: idPago,
+                    referenciaPago: idPago || "",
                 });
 
                 return docRef.id;
@@ -3984,46 +3955,6 @@
                 Preparatoria: ["1ro.", "2do.", "3ro."],
             };
 
-            // Obtener referencias a los elementos
-            const nivelSelect = document.getElementById("academic_level");
-            const gradoSelect = document.getElementById("academic_grade");
-
-            // Función para actualizar los grados
-            function actualizarGrados() {
-                // Obtener el nivel seleccionado
-                const nivelSeleccionado = nivelSelect.value;
-
-                // Limpiar el select de grados
-                gradoSelect.innerHTML =
-                    '<option value="seleccione">Seleccione</option>';
-
-                // Si se seleccionó un nivel válido
-                if (
-                    nivelSeleccionado !== "seleccione" &&
-                    gradosPorNivel[nivelSeleccionado]
-                ) {
-                    // Agregar las opciones correspondientes al nivel
-                    gradosPorNivel[nivelSeleccionado].forEach((grado) => {
-                        const option = document.createElement("option");
-                        option.value = grado;
-                        option.textContent = grado;
-                        gradoSelect.appendChild(option);
-                    });
-
-                    // Habilitar el select de grados
-                    gradoSelect.disabled = false;
-                } else {
-                    // Deshabilitar el select de grados si no hay nivel seleccionado
-                    gradoSelect.disabled = true;
-                }
-            }
-
-            // Agregar el evento change al select de nivel
-            nivelSelect.addEventListener("change", actualizarGrados);
-
-            // Inicializar el estado del select de grados
-            gradoSelect.disabled = true;
-
             // Obtener referencias a los elementos del nuevo grado a cursar
             const nivelNewSelect = document.getElementById("academic_newLevel");
             const gradoNewSelect = document.getElementById("academic_newGrade");
@@ -4129,6 +4060,59 @@
 
             // Validar cuando el campo pierde el foco
             emailInput.addEventListener("blur", validateEmail);
+
+            // Control de visibilidad de la sección de neurodivergencia
+            const neurodivergentRadios = document.querySelectorAll('input[name="student_neurodivergent"]');
+            const neurodivergentTypesContainer = document.getElementById('neurodivergent_types_container');
+
+            neurodivergentRadios.forEach(radio => {
+                radio.addEventListener('change', function () {
+                    if (this.value === 'sí' || this.value === 'en_proceso') {
+                        neurodivergentTypesContainer.style.display = 'block';
+                    } else {
+                        neurodivergentTypesContainer.style.display = 'none';
+                        // Limpiar checkboxes cuando se oculta
+                        const checkboxes = neurodivergentTypesContainer.querySelectorAll('input[type="checkbox"]');
+                        checkboxes.forEach(cb => cb.checked = false);
+                        // Ocultar y limpiar el input de "Otro"
+                        const otroContainer = document.getElementById('neurodivergent_otro_container');
+                        const otroInput = document.getElementById('neurodivergent_otro_especificar');
+                        otroContainer.style.display = 'none';
+                        otroInput.value = '';
+                        otroInput.required = false;
+                    }
+                });
+            });
+
+            // Control de visibilidad del input "Otro"
+            const otroCheckbox = document.getElementById('neurodivergent_otro');
+            const otroContainer = document.getElementById('neurodivergent_otro_container');
+            const otroInput = document.getElementById('neurodivergent_otro_especificar');
+
+            otroCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    otroContainer.style.display = 'block';
+                    otroInput.required = true;
+                } else {
+                    otroContainer.style.display = 'none';
+                    otroInput.required = false;
+                    otroInput.value = '';
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Referencia al botón de cerrar
+            const closeBtn = document.getElementById('restartFormBtn');
+
+            if (closeBtn) {
+                closeBtn.addEventListener('click', function () {
+
+                    window.location.reload();
+                });
+            }
         });
     </script>
 </body>
