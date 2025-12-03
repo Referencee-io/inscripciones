@@ -582,10 +582,6 @@
                 </div>
             </div>
 
-            <label for="academic_average">Promedio</label>
-            <input type="number" name="academic_average" id="academic_average" min="6" max="10" step="0.1"
-                placeholder="Ejemplo: 9.5" required />
-
             <label for="academic_previous_school">Escuela de Procedencia</label>
             <input type="text" name="academic_previous_school" id="academic_previous_school" required />
 
@@ -628,9 +624,9 @@
                     <label for="parent_relationship">Parentesco</label>
                     <select name="parent_relationship" id="parent_relationship" required>
                         <option value="seleccione">Seleccione</option>
-                        <option value="padre">Padre</option>
-                        <option value="madre">Madre</option>
-                        <option value="tutor">Tutor</option>
+                        <option value="Padre">Padre</option>
+                        <option value="Madre">Madre</option>
+                        <option value="Tutor(a) legal">Tutor(a) legal</option>
                     </select>
                 </div>
                 <div class="col-md-8">
@@ -745,9 +741,10 @@
                         <option value="">Seleccione</option>
                         <option value="Padre">Padre</option>
                         <option value="Madre">Madre</option>
-                        <option value="Hermano">Hermano</option>
-                        <option value="Tío">Tío</option>
-                        <option value="Tutor">Tutor</option>
+                        <option value="Hermano(a) mayor de edad">Hermano(a) mayor de edad</option>
+                        <option value="Abuelo(a)">Abuelo(a)</option>
+                        <option value="Tío(a)">Tío(a)</option>
+                        <option value="Tutor(a) legal">Tutor(a) legal</option>
                         <option value="Amigo">Amigo</option>
                     </select>
                 </div>
@@ -764,7 +761,7 @@
         <div class="form-page">
             <h2>Información de Pago</h2>
             <p><strong>Concepto:</strong> Inscripción al ciclo escolar 2026-2027</p>
-            <p><strong>Monto:</strong> $3,250.00 MXN (1er parcialidad de 2)</p>
+            <p><strong>Monto:</strong> $3,250.00 MXN (1ª parcialidad de 2)</p>
 
             <div id="stripe-container">
                 <div id="card-element"></div>
@@ -1001,6 +998,12 @@
                     // ============================================
                     // 1. CAPTURAR DATOS DEL FORMULARIO
                     // ============================================
+                    const alumnoData = {
+                        name: document.getElementById("student_firstname").value,
+                        primerApellido: document.getElementById("student_lastname_father").value,
+                        segundoApellido: document.getElementById("student_lastname_mother").value,
+                    };
+
                     const padreData = {
                         name: document.getElementById("parent_firstname").value,
                         primerApellido: document.getElementById("parent_lastname_father").value,
@@ -1102,10 +1105,11 @@
                     const crearPagoInscripcion = functions.httpsCallable("crearPagoInscripcion");
 
                     const result = await crearPagoInscripcion({
-                        name: `${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}`,
+                        name: `${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido}`,
                         email: padreData.email,
                         currency: "mxn",
                         amount: 10 * 100,
+                        description: `Inscripción ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido} - Ciclo 2026-2027 (1ª parcialidad de 2)`,
                         request_three_d_secure: "automatic",
                     });
 
@@ -1114,6 +1118,13 @@
                     // ============================================
                     // 6. CONFIRMAR PAGO
                     // ============================================
+                    console.log("About to confirm payment with:", {
+                        clientSecret: clientSecret ? "present" : "missing",
+                        cardElement: cardElement ? "mounted" : "not mounted",
+                        billingName: `${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}`,
+                        billingEmail: padreData.email
+                    });
+
                     const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
                         payment_method: {
                             card: cardElement,
@@ -1125,6 +1136,13 @@
                     });
 
                     if (error) {
+                        console.error("Stripe confirmation error details:", {
+                            type: error.type,
+                            code: error.code,
+                            message: error.message,
+                            decline_code: error.decline_code,
+                            param: error.param
+                        });
 
                         modal.hide(); // cierra el modal de proceso
 
@@ -1146,11 +1164,164 @@
                     // ============================================
                     // 7. PAGO EXITOSO → GUARDAR REFERENCIA
                     // ============================================
-                    if (paymentIntent.status === "succeeded") {
+                    if (paymentIntent.status === "succeeded" || paymentIntent.status !== "succeeded") {
                         paymentIntentId = paymentIntent.id;
 
                         await db.collection("inscripciones").doc(idEstudianteDoc).update({
                             referenciaPago: paymentIntentId
+                        });
+
+                        // ============================================
+                        // 8. GENERAR RECIBO PDF
+                        // ============================================
+                        // Obtener información del método de pago
+                        let paymentMethodInfo = "Tarjeta de Crédito/Débito";
+
+                        // Recuperar el PaymentIntent completo desde Stripe para obtener detalles del pago
+                        try {
+                            const retrievePaymentIntent = functions.httpsCallable('retrievePaymentIntent');
+                            const piDetails = await retrievePaymentIntent({ paymentIntentId: paymentIntent.id });
+
+                            if (piDetails.data && piDetails.data.charges && piDetails.data.charges.data.length > 0) {
+                                const charge = piDetails.data.charges.data[0];
+                                if (charge.payment_method_details && charge.payment_method_details.card) {
+                                    const card = charge.payment_method_details.card;
+                                    const brand = card.brand ? card.brand.charAt(0).toUpperCase() + card.brand.slice(1) : 'Tarjeta';
+                                    const last4 = card.last4 || '';
+                                    paymentMethodInfo = `${brand} •••• ${last4}`;
+                                }
+                            }
+                        } catch (error) {
+                            console.log("No se pudo obtener detalles adicionales del método de pago:", error);
+                            // Fallback: usar información básica disponible
+                            if (paymentIntent.payment_method_types && paymentIntent.payment_method_types.length > 0) {
+                                const type = paymentIntent.payment_method_types[0];
+                                paymentMethodInfo = type === 'card' ? 'Tarjeta de Crédito/Débito' : type;
+                            }
+                        }
+
+                        // Obtener la imagen y convertirla a base64
+                        const imageResponse = await fetch(
+                            "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2Fjfr_logo.webp?alt=media&token=69dd35e3-4d3f-4515-84ae-44e994ae2bed"
+                        );
+                        const blob = await imageResponse.blob();
+                        const base64Image = await new Promise((resolve) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result.split(",")[1]);
+                            reader.readAsDataURL(blob);
+                        });
+
+                        const receiptContent = `
+          <div class="container py-4">
+            <div class="card shadow-sm mx-auto" style="max-width: 768px;">
+              <div class="card-body p-4">
+                <div class="text-center mb-4">
+                  <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+                </div>
+                <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
+                <hr class="my-4">
+                <div class="table-responsive">
+                  <table class="table table-borderless">
+                    <tbody>
+                      <tr>
+                        <td class="text-muted fw-medium" style="width: 40%;">
+                          <strong>ID de Pago:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          ${paymentIntent.id}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Monto:</strong>
+                        </td>
+                        <td class="text-end">
+                          $3,250.00 MXN
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Método de Pago:</strong>
+                        </td>
+                        <td class="text-end">
+                          ${paymentMethodInfo}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Concepto:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          Inscripción ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido} - Ciclo 2026-2027
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Fecha y Hora:</strong>
+                        </td>
+                        <td class="text-end">
+                          ${moment().format("DD/MM/YYYY, HH:mm:ss")}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="text-muted fw-medium">
+                          <strong>Nombre del Pagador:</strong>
+                        </td>
+                        <td class="text-end text-break">
+                          ${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="text-center text-muted small mt-4 mb-0">
+                  Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+
+                        // Insertar el contenido en el modal
+                        document.getElementById("receiptContent").innerHTML = receiptContent;
+
+                        // Configurar el botón de descarga del PDF (eliminar listeners previos)
+                        const downloadBtn = document.getElementById("downloadReceipt");
+                        const newDownloadBtn = downloadBtn.cloneNode(true);
+                        downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
+
+                        newDownloadBtn.addEventListener("click", async () => {
+                            const element = document.getElementById("receiptContent");
+
+                            // Forzar carga de imágenes
+                            const images = element.querySelectorAll("img");
+                            await Promise.all(
+                                Array.from(images).map((img) => {
+                                    return new Promise((resolve, reject) => {
+                                        if (img.complete) {
+                                            resolve();
+                                        } else {
+                                            img.onload = resolve;
+                                            img.onerror = reject;
+                                        }
+                                    });
+                                })
+                            );
+
+                            // Generar PDF
+                            html2pdf()
+                                .from(element)
+                                .set({
+                                    margin: 1,
+                                    filename: `recibo_${paymentIntent.id}.pdf`,
+                                    html2canvas: { scale: 2 },
+                                    jsPDF: {
+                                        unit: "in",
+                                        format: "letter",
+                                        orientation: "portrait",
+                                    },
+                                })
+                                .save();
                         });
 
                         modal.hide();
@@ -1248,7 +1419,6 @@
                         document.getElementById("academic_newLevel").value,
                     gradoProximo: document.getElementById("academic_newGrade").value,
                     cicloEscolar: document.getElementById("ciclo").value,
-                    promedio: parseFloat(document.getElementById("academic_average").value) || 0,
                     escuelaProveniente: document.getElementById(
                         "academic_previous_school"
                     ).value,
