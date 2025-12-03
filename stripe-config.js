@@ -8,7 +8,7 @@ const STRIPE_CONFIG = {
     // ====================================
     // CAMBIAR ESTE VALOR PARA ALTERNAR ENTRE PRUEBA Y PRODUCCIÓN
     // ====================================
-    USE_TEST_MODE: true,  // true = modo prueba, false = modo producción
+    USE_TEST_MODE: false,  // true = modo prueba, false = modo producción
 
     // Mensajes informativos
     getModeMessage: function() {
