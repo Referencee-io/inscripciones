@@ -745,7 +745,6 @@
                         <option value="Abuelo(a)">Abuelo(a)</option>
                         <option value="Tío(a)">Tío(a)</option>
                         <option value="Tutor(a) legal">Tutor(a) legal</option>
-                        <option value="Amigo">Amigo</option>
                     </select>
                 </div>
             </div>
@@ -1178,27 +1177,55 @@
                         let paymentMethodInfo = "Tarjeta de Crédito/Débito";
 
                         // Recuperar el PaymentIntent completo desde Stripe para obtener detalles del pago
+                        // Recuperar el PaymentIntent completo desde Stripe para obtener detalles del pago
                         try {
                             const retrievePaymentIntent = functions.httpsCallable('retrievePaymentIntent');
                             const piDetails = await retrievePaymentIntent({ paymentIntentId: paymentIntent.id });
 
-                            if (piDetails.data && piDetails.data.charges && piDetails.data.charges.data.length > 0) {
-                                const charge = piDetails.data.charges.data[0];
-                                if (charge.payment_method_details && charge.payment_method_details.card) {
-                                    const card = charge.payment_method_details.card;
-                                    const brand = card.brand ? card.brand.charAt(0).toUpperCase() + card.brand.slice(1) : 'Tarjeta';
-                                    const last4 = card.last4 || '';
+                            const data = piDetails.data;
+                            paymentMethodInfo = "Método de pago no disponible";
+
+                            // Validar estructura
+                            if (data?.charges?.data?.length > 0) {
+                                const charge = data.charges.data[0];
+                                const pm = charge.payment_method_details;
+
+                                if (pm && pm.card) {
+                                    const card = pm.card;
+
+                                    const brand = card.brand
+                                        ? card.brand.charAt(0).toUpperCase() + card.brand.slice(1)
+                                        : "Tarjeta";
+
+                                    const last4 = card.last4 || "****";
+
                                     paymentMethodInfo = `${brand} •••• ${last4}`;
+
+                                    // Opcional: agregar país emisor o wallet
+                                    if (card.country) {
+                                        paymentMethodInfo += ` (${card.country})`;
+                                    }
+
+                                    if (card.wallet) {
+                                        paymentMethodInfo += ` - ${card.wallet}`;
+                                    }
                                 }
                             }
+
                         } catch (error) {
                             console.log("No se pudo obtener detalles adicionales del método de pago:", error);
-                            // Fallback: usar información básica disponible
-                            if (paymentIntent.payment_method_types && paymentIntent.payment_method_types.length > 0) {
+
+                            // Fallback
+                            if (
+                                paymentIntent.payment_method_types &&
+                                paymentIntent.payment_method_types.length > 0
+                            ) {
                                 const type = paymentIntent.payment_method_types[0];
-                                paymentMethodInfo = type === 'card' ? 'Tarjeta de Crédito/Débito' : type;
+                                paymentMethodInfo =
+                                    type === "card" ? "Tarjeta de Crédito/Débito" : type;
                             }
                         }
+
 
                         // Obtener la imagen y convertirla a base64
                         const imageResponse = await fetch(
@@ -1298,9 +1325,8 @@
                             await Promise.all(
                                 Array.from(images).map((img) => {
                                     return new Promise((resolve, reject) => {
-                                        if (img.complete) {
-                                            resolve();
-                                        } else {
+                                        if (img.complete) resolve();
+                                        else {
                                             img.onload = resolve;
                                             img.onerror = reject;
                                         }
@@ -1308,21 +1334,41 @@
                                 })
                             );
 
-                            // Generar PDF
-                            html2pdf()
+                            // Generar PDF como BLOB (NO usar .save())
+                            const opt = {
+                                margin: 1,
+                                filename: `recibo_${paymentIntent.id}.pdf`,
+                                html2canvas: { scale: 2 },
+                                jsPDF: {
+                                    unit: "in",
+                                    format: "letter",
+                                    orientation: "portrait",
+                                },
+                            };
+
+                            const pdfBlob = await html2pdf()
                                 .from(element)
-                                .set({
-                                    margin: 1,
-                                    filename: `recibo_${paymentIntent.id}.pdf`,
-                                    html2canvas: { scale: 2 },
-                                    jsPDF: {
-                                        unit: "in",
-                                        format: "letter",
-                                        orientation: "portrait",
-                                    },
-                                })
-                                .save();
+                                .set(opt)
+                                .outputPdf("blob"); // <-- aquí se fuerza blob descargable
+
+                            // Crear enlace de descarga real
+                            const url = URL.createObjectURL(pdfBlob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = `recibo_${paymentIntent.id}.pdf`;
+
+                            // Disparar descarga automática
+                            document.body.appendChild(a);
+                            a.click();
+
+                            // Limpiar
+                            setTimeout(() => {
+                                URL.revokeObjectURL(url);
+                                a.remove();
+                                location.reload(); // recargar después de que el archivo se guarda
+                            }, 800);
                         });
+
 
                         modal.hide();
 
