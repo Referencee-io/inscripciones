@@ -943,11 +943,9 @@
                 indicator.style.color = '#856404';
                 indicator.style.border = '2px solid #ffc107';
                 indicator.innerHTML = '⚠️ MODO PRUEBA';
+                indicator.style.display = ''; // mostrar
             } else {
-                indicator.style.backgroundColor = '#d4edda';
-                indicator.style.color = '#155724';
-                indicator.style.border = '2px solid #28a745';
-                indicator.innerHTML = '✅ MODO PRODUCCIÓN';
+                indicator.style.display = 'none'; // ocultar en producción
             }
 
             let stripe = null;
