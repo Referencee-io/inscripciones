@@ -1422,7 +1422,13 @@
                         const newDownloadBtn = downloadBtn.cloneNode(true);
                         downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
 
-                        newDownloadBtn.addEventListener("click", async () => {
+                        newDownloadBtn.addEventListener("click", async (e) => {
+                            e.preventDefault(); // Prevenir comportamiento predeterminado
+
+                            // Deshabilitar el botón para evitar clics múltiples
+                            newDownloadBtn.disabled = true;
+                            newDownloadBtn.textContent = "Generando PDF...";
+
                             try {
                                 const element = document.getElementById("receiptContent");
 
@@ -1477,15 +1483,15 @@
                                         a.style.display = "none";
 
                                         document.body.appendChild(a);
+                                        a.click();
 
-                                        // Forzar click con timeout para iOS
                                         setTimeout(() => {
-                                            a.click();
-                                            setTimeout(() => {
-                                                document.body.removeChild(a);
+                                            document.body.removeChild(a);
+                                            // Mostrar mensaje de éxito y opción de recargar
+                                            if (confirm("PDF descargado exitosamente. ¿Desea realizar otra inscripción?")) {
                                                 window.location.reload();
-                                            }, 500);
-                                        }, 100);
+                                            }
+                                        }, 1000);
                                     };
                                     reader.readAsDataURL(pdfBlob);
                                 } else {
@@ -1502,13 +1508,25 @@
                                     setTimeout(() => {
                                         URL.revokeObjectURL(url);
                                         document.body.removeChild(a);
-                                        window.location.reload();
-                                    }, 1000);
+
+                                        // Mostrar mensaje de éxito y opción de recargar
+                                        if (confirm("PDF descargado exitosamente. ¿Desea realizar otra inscripción?")) {
+                                            window.location.reload();
+                                        } else {
+                                            // Rehabilitar el botón si no quieren recargar
+                                            newDownloadBtn.disabled = false;
+                                            newDownloadBtn.textContent = "Descargar recibo PDF";
+                                        }
+                                    }, 1500);
                                 }
 
                             } catch (error) {
                                 console.error("Error al generar PDF:", error);
                                 alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
+
+                                // Rehabilitar el botón en caso de error
+                                newDownloadBtn.disabled = false;
+                                newDownloadBtn.textContent = "Descargar recibo PDF";
                             }
                         });
 
