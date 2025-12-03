@@ -827,8 +827,8 @@
 
                     <!-- Botones -->
                     <div class="d-flex justify-content-center gap-3">
-                        <button class="btn btn-primary" id="downloadReceipt">
-                            Descargar recibo PDF
+                        <button class="btn btn-primary" id="shareReceipt">
+                            Compartir recibo
                         </button>
                     </div>
                 </div>
@@ -1417,118 +1417,66 @@
                         // Insertar el contenido en el modal
                         document.getElementById("receiptContent").innerHTML = receiptContent;
 
-                        // Configurar el botón de descarga del PDF (eliminar listeners previos)
-                        const downloadBtn = document.getElementById("downloadReceipt");
-                        const newDownloadBtn = downloadBtn.cloneNode(true);
-                        downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
+                        // Configurar el botón de compartir el PDF (eliminar listeners previos)
+                        const shareBtn = document.getElementById("shareReceipt");
+                        const newShareBtn = shareBtn.cloneNode(true);
+                        shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
 
-                        newDownloadBtn.addEventListener("click", async (e) => {
-                            e.preventDefault(); // Prevenir comportamiento predeterminado
-
-                            // Deshabilitar el botón para evitar clics múltiples
-                            newDownloadBtn.disabled = true;
-                            newDownloadBtn.textContent = "Generando PDF...";
+                        newShareBtn.addEventListener("click", async () => {
 
                             try {
                                 const element = document.getElementById("receiptContent");
 
-                                // Forzar carga de imágenes
+                                // Esperar carga de imágenes del recibo
                                 const images = element.querySelectorAll("img");
                                 await Promise.all(
                                     Array.from(images).map((img) => {
                                         return new Promise((resolve, reject) => {
-                                            if (img.complete) {
-                                                resolve();
-                                            } else {
-                                                img.onload = resolve;
-                                                img.onerror = reject;
-                                            }
+                                            if (img.complete) resolve();
+                                            img.onload = resolve;
+                                            img.onerror = reject;
                                         });
                                     })
                                 );
 
-                                // Configuración para PDF optimizada
+                                // Configuración PDF
                                 const opt = {
-                                    margin: [0.4, 0.3, 0.4, 0.3],
+                                    margin: 0.3,
                                     filename: `Recibo_Inscripcion_${moment().format("YYYYMMDD_HHmmss")}.pdf`,
-                                    html2canvas: {
-                                        scale: 2,
-                                        useCORS: true,
-                                        logging: false,
-                                        backgroundColor: '#ffffff'
-                                    },
-                                    jsPDF: {
-                                        unit: "mm",
-                                        format: "letter",
-                                        orientation: "portrait",
-                                    },
+                                    html2canvas: { scale: 2, useCORS: true },
+                                    jsPDF: { unit: "mm", format: "letter", orientation: "portrait" }
                                 };
 
                                 // Generar PDF como blob
-                                const pdfBlob = await html2pdf()
-                                    .from(element)
-                                    .set(opt)
-                                    .outputPdf("blob");
+                                const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
 
-                                // Detección de dispositivo móvil
-                                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                                // Convertir blob a archivo
+                                const pdfFile = new File([pdfBlob], opt.filename, {
+                                    type: "application/pdf"
+                                });
 
-                                if (isMobile) {
-                                    // Para móviles: usar download attribute y forzar descarga
-                                    const reader = new FileReader();
-                                    reader.onloadend = () => {
-                                        const a = document.createElement("a");
-                                        a.href = reader.result;
-                                        a.download = opt.filename;
-                                        a.style.display = "none";
+                                // Web Share API
+                                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                                    await navigator.share({
+                                        title: "Recibo de inscripción",
+                                        text: "Te comparto tu recibo de pago.",
+                                        files: [pdfFile],
+                                    });
 
-                                        document.body.appendChild(a);
-                                        a.click();
-
-                                        setTimeout(() => {
-                                            document.body.removeChild(a);
-                                            // Mostrar mensaje de éxito y opción de recargar
-                                            if (confirm("PDF descargado exitosamente. ¿Desea realizar otra inscripción?")) {
-                                                window.location.reload();
-                                            }
-                                        }, 1000);
-                                    };
-                                    reader.readAsDataURL(pdfBlob);
-                                } else {
-                                    // Para desktop: método estándar
-                                    const url = URL.createObjectURL(pdfBlob);
-                                    const a = document.createElement("a");
-                                    a.href = url;
-                                    a.download = opt.filename;
-                                    a.style.display = "none";
-
-                                    document.body.appendChild(a);
-                                    a.click();
-
-                                    setTimeout(() => {
-                                        URL.revokeObjectURL(url);
-                                        document.body.removeChild(a);
-
-                                        // Mostrar mensaje de éxito y opción de recargar
-                                        if (confirm("PDF descargado exitosamente. ¿Desea realizar otra inscripción?")) {
-                                            window.location.reload();
-                                        } else {
-                                            // Rehabilitar el botón si no quieren recargar
-                                            newDownloadBtn.disabled = false;
-                                            newDownloadBtn.textContent = "Descargar recibo PDF";
-                                        }
-                                    }, 1500);
+                                    // Recargar al finalizar el share
+                                    window.location.reload();
+                                    return;
                                 }
 
-                            } catch (error) {
-                                console.error("Error al generar PDF:", error);
-                                alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
+                                alert("El navegador no permite compartir archivos. Descarga el PDF manualmente.");
 
-                                // Rehabilitar el botón en caso de error
-                                newDownloadBtn.disabled = false;
-                                newDownloadBtn.textContent = "Descargar recibo PDF";
+                            } catch (error) {
+                                console.error("Error al compartir el recibo:", error);
+                                alert("No fue posible compartir el recibo.");
                             }
                         });
+
+
 
                         modal.hide();
 
