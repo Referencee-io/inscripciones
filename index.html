@@ -1123,7 +1123,7 @@
                         name: `${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido}`,
                         email: padreData.email,
                         currency: "mxn",
-                        amount: 10 * 100,
+                        amount: 3250 * 100,
                         description: `Inscripción ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido} - Ciclo 2026-2027 (1ª parcialidad de 2)`,
                         request_three_d_secure: "automatic",
                         testMode: STRIPE_CONFIG.isTestMode()
@@ -1693,13 +1693,6 @@
             return isValid;
         }
 
-        document
-            .getElementById("reloadPage")
-            .addEventListener("click", async (e) => {
-                e.preventDefault();
-                location.reload(); // Recarga la página actual
-            });
-
         nextButtons.forEach((button) => {
             button.addEventListener("click", (e) => {
                 e.preventDefault(); // Evitar que la acción del botón sea interrumpida
@@ -1707,9 +1700,8 @@
                     currentPage++;
                     if (currentPage < pages.length) {
                         showPage(currentPage);
-                        // Desplazar al inicio de la página
-                        const container = document.querySelector("#form-container");
-                        container.scrollTo({ top: 0, behavior: "smooth" });
+                        // Desplazar al inicio del formulario
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                     }
                 }
             });
@@ -1721,9 +1713,8 @@
                 if (currentPage > 0) {
                     currentPage--;
                     showPage(currentPage);
-                    // Desplazar al inicio de la página
-                    const container = document.querySelector(".form-container");
-                    container.scrollTo({ top: 0, behavior: "smooth" });
+                    // Desplazar al inicio del formulario
+                    window.scrollTo({ top: 0, behavior: "smooth" });
                 }
             });
         });
