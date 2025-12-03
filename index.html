@@ -13,6 +13,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
+    <!-- Configuración de Stripe (Prueba/Producción) -->
+    <script src="./stripe-config.js"></script>
+
     <style>
         body {
             font-family: "Delius", cursive;
@@ -315,6 +318,11 @@
 </head>
 
 <body>
+    <!-- Indicador de Modo Stripe -->
+    <div id="stripe-mode-indicator"
+        style="position: fixed; top: 10px; right: 10px; z-index: 9999; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+    </div>
+
     <div id="form-container">
         <div class="progress-bar">
             <div class="step active">1</div>
@@ -366,7 +374,7 @@
                 </div>
                 <div class="col-md-6">
                     <label for="student_blood_type">Tipo de Sangre</label>
-                    <select name="student_blood_type" id="student_blood_type" required>
+                    <select name="student_blood_type" id="student_blood_type">
                         <option value="">Seleccione</option>
                         <option value="A+">A+</option>
                         <option value="A-">A-</option>
@@ -433,7 +441,7 @@
             <label for="student_food_environmental_allergy">¿Tu hijo(a) tiene alguna alergia alimentaria o
                 ambiental?</label>
             <input type="text" name="student_food_environmental_allergy" id="student_food_environmental_allergy"
-                placeholder="Por ejemplo: nuez, piquetes de abeja, polve, etc." />
+                placeholder="Por ejemplo: nuez, piquetes de abeja, al polvo, etc." />
 
             <div class="mt-3">
                 <label>
@@ -589,8 +597,8 @@
             <p>Boleta de Calificaciones/Certificado de Estudios</p>
             <input type="file" name="academic_report_card" id="academic_report_card" required />
             <p>CURP</p>
-            <input type="text" name="academic_curp" id="academic_curp" class="uppercase-input" required />
-            <input type="file" name="academic_curp_file" id="academic_curp_file" required />
+            <input type="text" name="academic_curp" id="academic_curp" class="uppercase-input" />
+            <input type="file" name="academic_curp_file" id="academic_curp_file" />
             <p>Acta de Nacimiento</p>
             <input type="file" name="academic_birth_certificate" id="academic_birth_certificate" required />
 
@@ -822,9 +830,6 @@
                         <button class="btn btn-primary" id="downloadReceipt">
                             Descargar recibo PDF
                         </button>
-                        <button type="button" id="reloadPage" class="btn btn-success">
-                            Aceptar
-                        </button>
                     </div>
                 </div>
             </div>
@@ -877,10 +882,6 @@
                             </a>
                         </div>
                     </div>
-
-                    <p class="text-muted small mt-3 fst-italic">
-                        Alternativa: Acude al departamento de contabilidad.
-                    </p>
                 </div>
 
                 <div class="modal-footer border-0 justify-content-center pb-4">
@@ -935,13 +936,28 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
+            // Mostrar indicador de modo
+            const indicator = document.getElementById('stripe-mode-indicator');
+            if (STRIPE_CONFIG.isTestMode()) {
+                indicator.style.backgroundColor = '#fff3cd';
+                indicator.style.color = '#856404';
+                indicator.style.border = '2px solid #ffc107';
+                indicator.innerHTML = '⚠️ MODO PRUEBA';
+            } else {
+                indicator.style.backgroundColor = '#d4edda';
+                indicator.style.color = '#155724';
+                indicator.style.border = '2px solid #28a745';
+                indicator.innerHTML = '✅ MODO PRODUCCIÓN';
+            }
+
             let stripe = null;
             let cardElement = null;
 
             try {
                 // Obtener la clave pública de Stripe desde Firebase Functions
+                // Pasamos el modo como parámetro
                 const obtenerClavePublica = functions.httpsCallable('obtenerClavePublicaStripe');
-                const result = await obtenerClavePublica();
+                const result = await obtenerClavePublica({ testMode: STRIPE_CONFIG.isTestMode() });
                 const publishableKey = result.data.publishableKey;
 
                 // Configurar Stripe con la clave pública obtenida
@@ -1110,6 +1126,7 @@
                         amount: 10 * 100,
                         description: `Inscripción ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido} - Ciclo 2026-2027 (1ª parcialidad de 2)`,
                         request_three_d_secure: "automatic",
+                        testMode: STRIPE_CONFIG.isTestMode()
                     });
 
                     const clientSecret = result.data.clientSecret;
@@ -1177,10 +1194,12 @@
                         let paymentMethodInfo = "Tarjeta de Crédito/Débito";
 
                         // Recuperar el PaymentIntent completo desde Stripe para obtener detalles del pago
-                        // Recuperar el PaymentIntent completo desde Stripe para obtener detalles del pago
                         try {
                             const retrievePaymentIntent = functions.httpsCallable('retrievePaymentIntent');
-                            const piDetails = await retrievePaymentIntent({ paymentIntentId: paymentIntent.id });
+                            const piDetails = await retrievePaymentIntent({
+                                paymentIntentId: paymentIntent.id,
+                                testMode: STRIPE_CONFIG.isTestMode()
+                            });
 
                             const data = piDetails.data;
                             paymentMethodInfo = "Método de pago no disponible";
@@ -1238,72 +1257,158 @@
                             reader.readAsDataURL(blob);
                         });
 
+                        const headerImageUrl = "https://firebasestorage.googleapis.com/v0/b/escuelas-235df.appspot.com/o/IJFR%2FRecibo_inscripcion%2Fencabezado.jpg?alt=media&token=6916e468-589b-48ba-9107-413bd32e9109";
+
+                        // Formatear el método de pago
+                        const formattedPaymentMethod = paymentMethodInfo.toUpperCase();
+
                         const receiptContent = `
-          <div class="container py-4">
-            <div class="card shadow-sm mx-auto" style="max-width: 768px;">
-              <div class="card-body p-4">
-                <div class="text-center mb-4">
-                  <img src="data:image/webp;base64,${base64Image}" alt="Logo" class="img-fluid" style="max-height: 80px;">
-                </div>
-                <h2 class="text-center mb-4 fw-bold">Recibo de Pago</h2>
-                <hr class="my-4">
+          <style>
+            #receiptContent {
+              position: relative;
+              background: white;
+            }
+            #receiptContent::before {
+              content: "";
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 300px;
+              height: 300px;
+              background-image: url('data:image/webp;base64,${base64Image}');
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+              opacity: 0.05;
+              z-index: 0;
+              pointer-events: none;
+            }
+            .receipt-container {
+              position: relative;
+              z-index: 1;
+            }
+          </style>
+          <div class="receipt-container" style="max-width: 210mm; margin: 0 auto;">
+            <div class="card shadow-sm" style="width: 100%; border: none;">
+              <!-- Encabezado -->
+              <div style="width: 100%; line-height: 0; margin: 0; padding: 0;">
+                <img src="${headerImageUrl}"
+                  alt="Encabezado"
+                  style="width: 100%; height: auto; display: block; border-radius: 8px 8px 0 0;"
+                  crossorigin="anonymous">
+              </div>
+
+              <div class="card-body" style="padding: 20px 30px;">
+                <h2 class="text-center mb-3 fw-bold" style="color: #2c3e50; font-size: 24px;">RECIBO DE PAGO</h2>
+
                 <div class="table-responsive">
-                  <table class="table table-borderless">
+                  <table class="table table-borderless mb-2" style="font-size: 14px;">
                     <tbody>
-                      <tr>
-                        <td class="text-muted fw-medium" style="width: 40%;">
-                          <strong>ID de Pago:</strong>
+                      <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td class="py-2" style="width: 40%; color: #6c757d;">
+                          <i class="bi bi-calendar-event me-1"></i><strong>Fecha y Hora:</strong>
                         </td>
-                        <td class="text-end text-break">
-                          ${paymentIntent.id}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Monto:</strong>
-                        </td>
-                        <td class="text-end">
-                          $3,250.00 MXN
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Método de Pago:</strong>
-                        </td>
-                        <td class="text-end">
-                          ${paymentMethodInfo}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Concepto:</strong>
-                        </td>
-                        <td class="text-end text-break">
-                          Inscripción ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido} - Ciclo 2026-2027
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Fecha y Hora:</strong>
-                        </td>
-                        <td class="text-end">
+                        <td class="py-2 text-end" style="font-weight: 600;">
                           ${moment().format("DD/MM/YYYY, HH:mm:ss")}
                         </td>
                       </tr>
-                      <tr>
-                        <td class="text-muted fw-medium">
-                          <strong>Nombre del Pagador:</strong>
+                      <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td class="py-2" style="color: #6c757d;">
+                          <i class="bi bi-journal-text me-1"></i><strong>Concepto:</strong>
                         </td>
-                        <td class="text-end text-break">
+                        <td class="py-2 text-end" style="font-weight: 600;">
+                          Inscripción Ciclo Escolar 2026-2027 (1ª parcialidad de 2)
+                        </td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td class="py-2" style="color: #6c757d;">
+                          <i class="bi bi-person-badge me-1"></i><strong>Alumno:</strong>
+                        </td>
+                        <td class="py-2 text-end" style="font-weight: 600;">
+                          ${alumnoData.name} ${alumnoData.primerApellido} ${alumnoData.segundoApellido}
+                        </td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td class="py-2" style="color: #6c757d;">
+                          <i class="bi bi-person-circle me-1"></i><strong>Pagado por:</strong>
+                        </td>
+                        <td class="py-2 text-end" style="font-weight: 600;">
                           ${padreData.name} ${padreData.primerApellido} ${padreData.segundoApellido}
+                        </td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid #e9ecef;">
+                        <td class="py-2" style="color: #6c757d;">
+                          <i class="bi bi-credit-card me-1"></i><strong>Método de pago:</strong>
+                        </td>
+                        <td class="py-2 text-end">
+                          <span style="background: #e7f3ff; color: #0066cc; padding: 4px 12px; border-radius: 12px; font-weight: 600; font-size: 12px; border: 1px solid #b3d9ff;">
+                            ${formattedPaymentMethod}
+                          </span>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p class="text-center text-muted small mt-4 mb-0">
-                  Gracias por tu pago. Si tienes preguntas, no dudes en contactarnos.
-                </p>
+
+                <hr class="my-2" style="border-color: #dee2e6;">
+
+                <div class="text-center py-2" style="background: #f8f9fa; border-radius: 8px; border: 2px solid #28a745;">
+                  <div style="color: #6c757d; font-size: 13px; margin-bottom: 4px;">
+                    <i class="bi bi-cash-stack me-1"></i><strong>Total Pagado</strong>
+                  </div>
+                  <div style="color: #28a745; font-size: 28px; font-weight: bold;">
+                    $3,250.00 MXN
+                  </div>
+                </div>
+
+                <hr class="my-2" style="border-color: #dee2e6;">
+
+                <div class="row g-2 mb-2">
+                  <div class="col-md-6">
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                      <div style="color: #6c757d; font-size: 12px; margin-bottom: 4px;">
+                        <i class="bi bi-check-circle me-1"></i><strong>Estado del pago</strong>
+                      </div>
+                      <span class="badge" style="background: #d4edda; color: #155724; border: 1px solid #c3e6cb; padding: 4px 10px; font-size: 12px;">
+                        Completado
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                      <div style="color: #6c757d; font-size: 12px; margin-bottom: 4px;">
+                        <i class="bi bi-upc me-1"></i><strong>Referencia</strong>
+                      </div>
+                      <code style="background: white; padding: 4px 8px; border-radius: 4px; border: 1px solid #dee2e6; font-size: 11px;">
+                        REF-${paymentIntent.id.toUpperCase()}
+                      </code>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="my-2" style="border-color: #dee2e6;">
+
+                <div class="text-center" style="color: #6c757d; font-size: 11px; line-height: 1.4;">
+                  <p class="mb-1">
+                    <i class="bi bi-file-earmark-text me-1"></i>
+                    Este documento es un comprobante oficial de pago.
+                  </p>
+                  <p class="mb-1">
+                    <i class="bi bi-headset me-1"></i>
+                    Para dudas o aclaraciones contactar a:
+                  </p>
+                  <p class="mb-1">
+                    <i class="bi bi-envelope me-1"></i>
+                    contabilidad@institutojfr.edu.mx
+                    <span class="mx-1">|</span>
+                    <i class="bi bi-telephone me-1"></i>
+                    446 146 6076
+                  </p>
+                  <p class="mt-2 mb-0 fst-italic" style="font-size: 10px;">
+                    Documento generado electrónicamente – No tiene validez fiscal
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -1318,55 +1423,102 @@
                         downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
 
                         newDownloadBtn.addEventListener("click", async () => {
-                            const element = document.getElementById("receiptContent");
+                            try {
+                                const element = document.getElementById("receiptContent");
 
-                            // Forzar carga de imágenes
-                            const images = element.querySelectorAll("img");
-                            await Promise.all(
-                                Array.from(images).map((img) => {
-                                    return new Promise((resolve, reject) => {
-                                        if (img.complete) resolve();
-                                        else {
-                                            img.onload = resolve;
-                                            img.onerror = reject;
-                                        }
-                                    });
-                                })
-                            );
+                                // Forzar carga de imágenes
+                                const images = element.querySelectorAll("img");
+                                await Promise.all(
+                                    Array.from(images).map((img) => {
+                                        return new Promise((resolve, reject) => {
+                                            if (img.complete) {
+                                                resolve();
+                                            } else {
+                                                img.onload = resolve;
+                                                img.onerror = reject;
+                                            }
+                                        });
+                                    })
+                                );
 
-                            // Generar PDF como BLOB (NO usar .save())
-                            const opt = {
-                                margin: 1,
-                                filename: `recibo_${paymentIntent.id}.pdf`,
-                                html2canvas: { scale: 2 },
-                                jsPDF: {
-                                    unit: "in",
-                                    format: "letter",
-                                    orientation: "portrait",
-                                },
-                            };
+                                // Configuración para PDF optimizada
+                                const opt = {
+                                    margin: [0.4, 0.3, 0.4, 0.3],
+                                    filename: `Recibo_Inscripcion_${moment().format("YYYYMMDD_HHmmss")}.pdf`,
+                                    html2canvas: {
+                                        scale: 2,
+                                        useCORS: true,
+                                        logging: false,
+                                        backgroundColor: '#ffffff'
+                                    },
+                                    jsPDF: {
+                                        unit: "mm",
+                                        format: "letter",
+                                        orientation: "portrait",
+                                    },
+                                };
 
-                            const pdfBlob = await html2pdf()
-                                .from(element)
-                                .set(opt)
-                                .outputPdf("blob"); // <-- aquí se fuerza blob descargable
+                                // Generar PDF como blob
+                                const pdfBlob = await html2pdf()
+                                    .from(element)
+                                    .set(opt)
+                                    .outputPdf("blob");
 
-                            // Crear enlace de descarga real
-                            const url = URL.createObjectURL(pdfBlob);
-                            const a = document.createElement("a");
-                            a.href = url;
-                            a.download = `recibo_${paymentIntent.id}.pdf`;
+                                // Detección de dispositivo móvil
+                                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-                            // Disparar descarga automática
-                            document.body.appendChild(a);
-                            a.click();
+                                if (isMobile) {
+                                    // Para móviles: usar download attribute y forzar descarga
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        const a = document.createElement("a");
+                                        a.href = reader.result;
+                                        a.download = opt.filename;
+                                        a.style.display = "none";
 
-                            // Limpiar
-                            setTimeout(() => {
-                                URL.revokeObjectURL(url);
-                                a.remove();
-                                location.reload(); // recargar después de que el archivo se guarda
-                            }, 800);
+                                        document.body.appendChild(a);
+
+                                        // Forzar click con timeout para iOS
+                                        setTimeout(() => {
+                                            a.click();
+                                            setTimeout(() => {
+                                                document.body.removeChild(a);
+                                                window.location.reload();
+                                            }, 500);
+                                        }, 100);
+                                    };
+                                    reader.readAsDataURL(pdfBlob);
+                                } else {
+                                    // Para desktop: método estándar
+                                    const url = URL.createObjectURL(pdfBlob);
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = opt.filename;
+                                    a.style.display = "none";
+
+                                    document.body.appendChild(a);
+                                    a.click();
+
+                                    setTimeout(() => {
+                                        URL.revokeObjectURL(url);
+                                        document.body.removeChild(a);
+                                        window.location.reload();
+                                    }, 1000);
+                                }
+
+                            } catch (error) {
+                                console.error("Error al generar PDF:", error);
+                                alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
+                            }
+                        });
+
+                        // Configurar botón Aceptar para recargar la página
+                        const reloadBtn = document.getElementById("reloadPage");
+                        const newReloadBtn = reloadBtn.cloneNode(true);
+                        reloadBtn.parentNode.replaceChild(newReloadBtn, reloadBtn);
+
+                        newReloadBtn.addEventListener("click", () => {
+                            window.location.reload();
                         });
 
 
