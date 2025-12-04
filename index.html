@@ -323,6 +323,32 @@
         style="position: fixed; top: 10px; right: 10px; z-index: 9999; padding: 8px 15px; border-radius: 6px; font-size: 12px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
     </div>
 
+    <!-- Mensaje de Formulario Caducado -->
+    <div id="expired-form-container" style="display: none; max-width: 600px; margin: 50px auto; padding: 20px;">
+        <div class="card shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
+            <div class="card-body text-center p-5">
+                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);">
+                    <i class="bi bi-calendar-x" style="font-size: 50px; color: white;"></i>
+                </div>
+                <h2 class="fw-bold mb-3" style="color: #2d3748; font-size: 28px;">Periodo de Inscripción Finalizado</h2>
+                <p class="text-muted mb-4" style="font-size: 16px; line-height: 1.6;">
+                    El periodo de inscripciones para el ciclo escolar 2026-2027 ha concluido.
+                </p>
+                <div class="alert alert-info d-flex align-items-center" role="alert" style="background: #e7f3ff; border: none; border-radius: 10px;">
+                    <i class="bi bi-info-circle-fill me-2" style="font-size: 24px; color: #0066cc;"></i>
+                    <div class="text-start">
+                        <strong>¿Necesitas más información?</strong><br>
+                        <span class="small">Contáctanos para conocer las próximas fechas de inscripción.</span>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <p class="mb-2"><i class="bi bi-envelope me-2"></i><strong>Email:</strong> informes@institutojfr.edu.mx</p>
+                    <p class="mb-0"><i class="bi bi-telephone me-2"></i><strong>Teléfono:</strong> 446 146 6076</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="form-container">
         <div class="progress-bar">
             <div class="step active">1</div>
@@ -936,6 +962,14 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
+            // Verificar si el formulario está caducado
+            if (STRIPE_CONFIG.isFormExpired()) {
+                document.getElementById('form-container').style.display = 'none';
+                document.getElementById('expired-form-container').style.display = 'block';
+                document.getElementById('stripe-mode-indicator').style.display = 'none';
+                return; // Detener la ejecución del resto del código
+            }
+
             // Mostrar indicador de modo
             const indicator = document.getElementById('stripe-mode-indicator');
             if (STRIPE_CONFIG.isTestMode()) {
@@ -1165,13 +1199,29 @@
                             { backdrop: "static", keyboard: false }
                         );
 
+                        // Crear mensaje de error más descriptivo
+                        let errorMessage = error.message;
+
+                        // Traducir algunos errores comunes al español
+                        if (error.code === 'card_declined') {
+                            errorMessage = 'Tu tarjeta fue rechazada. Por favor, verifica con tu banco o intenta con otra tarjeta.';
+                        } else if (error.code === 'expired_card') {
+                            errorMessage = 'Tu tarjeta ha expirado. Por favor, intenta con otra tarjeta.';
+                        } else if (error.code === 'incorrect_cvc') {
+                            errorMessage = 'El código de seguridad (CVC) es incorrecto. Por favor, verifica e intenta nuevamente.';
+                        } else if (error.code === 'processing_error') {
+                            errorMessage = 'Ocurrió un error al procesar el pago. Por favor, intenta nuevamente.';
+                        } else if (error.code === 'incorrect_number') {
+                            errorMessage = 'El número de tarjeta es incorrecto. Por favor, verifica e intenta nuevamente.';
+                        } else if (error.code === 'insufficient_funds') {
+                            errorMessage = 'Fondos insuficientes. Por favor, verifica tu saldo o intenta con otra tarjeta.';
+                        }
+
                         // Mostrar detalle del error dentro del modal
-                        document.getElementById("paymentErrorReason").textContent =
-                            `Motivo: ${error.message}`;
+                        document.getElementById("paymentErrorReason").innerHTML =
+                            `<strong>⚠️ Error en el pago:</strong><br>${errorMessage}`;
 
                         errorModal.show();
-
-
                         return;
                     }
 
@@ -1420,7 +1470,13 @@
                         const newShareBtn = shareBtn.cloneNode(true);
                         shareBtn.parentNode.replaceChild(newShareBtn, shareBtn);
 
-                        newShareBtn.addEventListener("click", async () => {
+                        newShareBtn.addEventListener("click", async (e) => {
+                            e.preventDefault();
+
+                            // Deshabilitar el botón para evitar clics múltiples
+                            newShareBtn.disabled = true;
+                            const originalText = newShareBtn.innerHTML;
+                            newShareBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generando PDF...';
 
                             try {
                                 const element = document.getElementById("receiptContent");
@@ -1439,38 +1495,107 @@
 
                                 // Configuración PDF
                                 const opt = {
-                                    margin: 0.3,
+                                    margin: [0.4, 0.3, 0.4, 0.3],
                                     filename: `Recibo_Inscripcion_${moment().format("YYYYMMDD_HHmmss")}.pdf`,
-                                    html2canvas: { scale: 2, useCORS: true },
+                                    html2canvas: {
+                                        scale: 2,
+                                        useCORS: true,
+                                        logging: false,
+                                        backgroundColor: '#ffffff'
+                                    },
                                     jsPDF: { unit: "mm", format: "letter", orientation: "portrait" }
                                 };
 
                                 // Generar PDF como blob
                                 const pdfBlob = await html2pdf().from(element).set(opt).outputPdf("blob");
 
-                                // Convertir blob a archivo
-                                const pdfFile = new File([pdfBlob], opt.filename, {
-                                    type: "application/pdf"
-                                });
+                                // Detectar dispositivo móvil
+                                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-                                // Web Share API
-                                if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-                                    await navigator.share({
-                                        title: "Recibo de inscripción",
-                                        text: "Te comparto tu recibo de pago.",
-                                        files: [pdfFile],
-                                    });
+                                // Intentar compartir con Web Share API
+                                if (navigator.share) {
+                                    try {
+                                        // Convertir blob a archivo
+                                        const pdfFile = new File([pdfBlob], opt.filename, {
+                                            type: "application/pdf",
+                                            lastModified: new Date().getTime()
+                                        });
 
-                                    // Recargar al finalizar el share
-                                    window.location.reload();
-                                    return;
+                                        // Verificar si se pueden compartir archivos
+                                        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                                            await navigator.share({
+                                                title: "Recibo de Inscripción",
+                                                text: "Recibo de pago - Instituto JFR",
+                                                files: [pdfFile],
+                                            });
+
+                                            // Preguntar si desea realizar otra inscripción
+                                            setTimeout(() => {
+                                                if (confirm("PDF compartido exitosamente. ¿Desea realizar otra inscripción?")) {
+                                                    window.location.reload();
+                                                } else {
+                                                    newShareBtn.disabled = false;
+                                                    newShareBtn.innerHTML = originalText;
+                                                }
+                                            }, 500);
+                                            return;
+                                        }
+                                    } catch (shareError) {
+                                        console.log("Error al compartir:", shareError);
+                                        // Continuar con descarga alternativa
+                                    }
                                 }
 
-                                alert("El navegador no permite compartir archivos. Descarga el PDF manualmente.");
+                                // Método alternativo: Descargar el PDF
+                                if (isMobile) {
+                                    // Para móviles: usar Data URL
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => {
+                                        const a = document.createElement("a");
+                                        a.href = reader.result;
+                                        a.download = opt.filename;
+                                        a.style.display = "none";
+                                        document.body.appendChild(a);
+                                        a.click();
+
+                                        setTimeout(() => {
+                                            document.body.removeChild(a);
+                                            if (confirm("PDF descargado. ¿Desea realizar otra inscripción?")) {
+                                                window.location.reload();
+                                            } else {
+                                                newShareBtn.disabled = false;
+                                                newShareBtn.innerHTML = originalText;
+                                            }
+                                        }, 1000);
+                                    };
+                                    reader.readAsDataURL(pdfBlob);
+                                } else {
+                                    // Para desktop: descarga estándar
+                                    const url = URL.createObjectURL(pdfBlob);
+                                    const a = document.createElement("a");
+                                    a.href = url;
+                                    a.download = opt.filename;
+                                    a.style.display = "none";
+                                    document.body.appendChild(a);
+                                    a.click();
+
+                                    setTimeout(() => {
+                                        URL.revokeObjectURL(url);
+                                        document.body.removeChild(a);
+                                        if (confirm("PDF descargado exitosamente. ¿Desea realizar otra inscripción?")) {
+                                            window.location.reload();
+                                        } else {
+                                            newShareBtn.disabled = false;
+                                            newShareBtn.innerHTML = originalText;
+                                        }
+                                    }, 1500);
+                                }
 
                             } catch (error) {
-                                console.error("Error al compartir el recibo:", error);
-                                alert("No fue posible compartir el recibo.");
+                                console.error("Error al generar/compartir el recibo:", error);
+                                alert("Hubo un error al generar el PDF. Por favor, intenta nuevamente.");
+                                newShareBtn.disabled = false;
+                                newShareBtn.innerHTML = originalText;
                             }
                         });
 
