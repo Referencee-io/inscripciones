@@ -327,14 +327,16 @@
     <div id="expired-form-container" style="display: none; max-width: 600px; margin: 50px auto; padding: 20px;">
         <div class="card shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
             <div class="card-body text-center p-5">
-                <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);">
+                <div
+                    style="width: 100px; height: 100px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 30px; box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);">
                     <i class="bi bi-calendar-x" style="font-size: 50px; color: white;"></i>
                 </div>
                 <h2 class="fw-bold mb-3" style="color: #2d3748; font-size: 28px;">Periodo de Inscripción Finalizado</h2>
                 <p class="text-muted mb-4" style="font-size: 16px; line-height: 1.6;">
                     El periodo de inscripciones para el ciclo escolar 2026-2027 ha concluido.
                 </p>
-                <div class="alert alert-info d-flex align-items-center" role="alert" style="background: #e7f3ff; border: none; border-radius: 10px;">
+                <div class="alert alert-info d-flex align-items-center" role="alert"
+                    style="background: #e7f3ff; border: none; border-radius: 10px;">
                     <i class="bi bi-info-circle-fill me-2" style="font-size: 24px; color: #0066cc;"></i>
                     <div class="text-start">
                         <strong>¿Necesitas más información?</strong><br>
@@ -342,8 +344,9 @@
                     </div>
                 </div>
                 <div class="mt-4">
-                    <p class="mb-2"><i class="bi bi-envelope me-2"></i><strong>Email:</strong> informes@institutojfr.edu.mx</p>
-                    <p class="mb-0"><i class="bi bi-telephone me-2"></i><strong>Teléfono:</strong> 446 146 6076</p>
+                    <p class="mb-2"><i class="bi bi-envelope me-2"></i><strong>Email:</strong>
+                        admisiones@institutojfr.edu.mx</p>
+                    <p class="mb-0"><i class="bi bi-telephone me-2"></i><strong>Teléfono:</strong> 446 146 5148</p>
                 </div>
             </div>
         </div>
@@ -4551,6 +4554,65 @@
                     window.location.reload();
                 });
             }
+        });
+    </script>
+    <script>
+        // Protección contra inspección de código
+        document.addEventListener('DOMContentLoaded', function () {
+            // Deshabilitar clic derecho
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Deshabilitar teclas de inspección comunes
+            document.addEventListener('keydown', function (e) {
+                // F12
+                if (e.keyCode === 123) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+I (Inspector)
+                if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+J (Consola)
+                if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+U (Ver fuente)
+                if (e.ctrlKey && e.keyCode === 85) {
+                    e.preventDefault();
+                    return false;
+                }
+                // Ctrl+Shift+C (Selector de elementos)
+                if (e.ctrlKey && e.shiftKey && e.keyCode === 67) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            // Detectar si las DevTools están abiertas
+            const detectDevTools = () => {
+                const threshold = 160;
+                const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+                const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+                if (widthThreshold || heightThreshold) {
+                    // DevTools detectadas - opcional: puedes mostrar un mensaje o redirigir
+                    console.clear();
+                }
+            };
+
+            // Verificar periódicamente
+            setInterval(detectDevTools, 1000);
+
+            // Limpiar consola periódicamente
+            setInterval(() => {
+                console.clear();
+            }, 2000);
         });
     </script>
 </body>
