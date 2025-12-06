@@ -13,7 +13,7 @@ const STRIPE_CONFIG = {
   // ====================================
   // CONTROL DE CADUCIDAD DEL FORMULARIO
   // ====================================
-  FORMULARIO_CADUCADO: false, // true = formulario vencido, false = formulario activo
+  FORMULARIO_CADUCADO: true, // true = formulario vencido, false = formulario activo
 
   // Mensajes informativos
   getModeMessage: function () {
